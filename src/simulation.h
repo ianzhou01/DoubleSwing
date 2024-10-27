@@ -38,7 +38,7 @@ class Simulation {
 
     void draw_all();
     void handle_click(sf::Event &event);
-    void handle_mouse_move(sf::Event &event);
+    void handle_mouse_move();
     void handle_mouse_release(sf::Event &event);
 //    bool handle_mouse_move_buttons(int x, int y);
 //    bool handle_mouse_move_nfs(int x, int y);

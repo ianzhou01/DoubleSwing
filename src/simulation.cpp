@@ -92,10 +92,8 @@ void Simulation::operator()() {
             handle_click(event);
 
             handle_mouse_release(event);
-
-            // Handle dragging
-            handle_mouse_move(event);
         }
+        handle_mouse_move();
 
         // Update pendulum (skip updating during drag)
         if (!isDraggingP1 && !isDraggingP2) {
@@ -117,13 +115,23 @@ void Simulation::updatePhysicsText() {
     ss.precision(2);
     ss << std::fixed;
 
-    ss.str("");  // Clear stream
-    ss << "V1: " << -1.0f * doublePendulum.p1.getSpeed(); // To reflect counterclockwise convention
-    debugVel1.setString(ss.str());
+    if (!isDraggingP1) {
+        ss.str("");  // Clear stream
+        ss << "V1: " << ((doublePendulum.p1.getSpeed() != 0) ? -1.0f * doublePendulum.p1.getSpeed()
+                                                             : doublePendulum.p1.getSpeed()); // To reflect counterclockwise convention
+        debugVel1.setString(ss.str());
+    }
+    else
+        debugVel1.setString("V1: Held");
 
-    ss.str("");
-    ss << "V2: " << -1.0f * doublePendulum.p2.getSpeed();
-    debugVel2.setString(ss.str());
+    if (!isDraggingP2) {
+        ss.str("");
+        ss << "V2: " << ((doublePendulum.p2.getSpeed() != 0) ? -1.0f * doublePendulum.p2.getSpeed()
+                                                             : doublePendulum.p2.getSpeed());
+        debugVel2.setString(ss.str());
+    }
+    else
+        debugVel2.setString("V2: Held");
 
     ss.str("");
     ss << "A1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
@@ -185,7 +193,7 @@ void Simulation::handle_click(sf::Event &event) {
 }
 
 
-void Simulation::handle_mouse_move(sf::Event &event) {
+void Simulation::handle_mouse_move() {
     if (isDraggingP1 || isDraggingP2) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(win);
         sf::Vector2f currentMousePos((float)mousePos.x, (float)mousePos.y);
