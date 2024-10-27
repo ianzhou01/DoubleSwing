@@ -170,11 +170,11 @@ void Simulation::handle_click(sf::Event &event) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(win);
 
         // Position of p1 weight
-        float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(doublePendulum.p1.getThetaRaw()));
+        float p1X = (float)(CENTER_X - PX_METER_RATIO * doublePendulum.p1.getLen() * sin(doublePendulum.p1.getThetaRaw()));
         float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(doublePendulum.p1.getThetaRaw()));
 
         // Position of p2 weight
-        float p2X = (float)(p1X + PX_METER_RATIO * doublePendulum.p2.getLen() * sin(doublePendulum.p2.getThetaRaw()));
+        float p2X = (float)(p1X - PX_METER_RATIO * doublePendulum.p2.getLen() * sin(doublePendulum.p2.getThetaRaw()));
         float p2Y = (float)(p1Y - PX_METER_RATIO * doublePendulum.p2.getLen() * cos(doublePendulum.p2.getThetaRaw()));
 
         float distP1 = distance(mousePos.x, mousePos.y, p1X, HEIGHT - p1Y);
