@@ -110,7 +110,7 @@ void DoublePendulum::integrateP2_RK4(float dt) {
 
     p2.omega += (dt / 6.0) * (k1_accel2 + 2 * k2_accel2 + 2 * k3_accel2 + k4_accel2);
     Utility::clamp_speed(p2.omega);
-    preventOverflow();
+    p2.preventOverflow();
 }
 
 void DoublePendulum::updateBoth() {
@@ -132,14 +132,8 @@ void DoublePendulum::updateP2() {
 }
 
 void DoublePendulum::preventOverflow() {
-    const float overflowThreshold = 174.532925f;  // limit of +/- 10000 deg
-
-    if (std::abs(p1.thetaRaw) > overflowThreshold) {
-        p1.thetaRaw = fmod(p1.thetaRaw, 2 * PI);
-    }
-    if (std::abs(p2.thetaRaw) > overflowThreshold) {
-        p2.thetaRaw = fmod(p2.thetaRaw, 2 * PI);
-    }
+    p1.preventOverflow();
+    p2.preventOverflow();
 }
 
 void DoublePendulum::draw(sf::RenderWindow &win, int centerX, int centerY, bool paused) {

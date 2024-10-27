@@ -112,6 +112,14 @@ void Pendulum::integrate_RK4(float dt) { // Runge-Kutta (RK4)
     Utility::normalize_angle(thetaNormal);
 
     omega += (dt / 6.0) * (k1_acc + 2 * k2_acc + 2 * k3_acc + k4_acc);
+
+    preventOverflow();
+}
+
+void Pendulum::preventOverflow() {
+    if (std::abs(thetaRaw) > RAD_LIMIT) {
+        thetaRaw = fmod(thetaRaw, 2 * PI);
+    }
 }
 
 
@@ -153,7 +161,6 @@ float Pendulum::getThetaNorm() const {
 float Pendulum::getSpeed() const {
     return omega;
 }
-
 
 void Pendulum::setTheta(float angle) {
     thetaRaw = angle;

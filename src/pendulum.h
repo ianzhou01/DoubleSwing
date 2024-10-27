@@ -6,6 +6,7 @@
 #include "func.h"
 
 const float g = 9.80665f;
+const float RAD_LIMIT = Utility::deg_to_rad(10000.0f);
 const sf::Color ARM_CLR = sf::Color(50, 50, 50);
 const float ARM_W = 5;
 const float WEIGHT_RAD = 15;
@@ -23,6 +24,7 @@ class Pendulum {
     void integrateEuler();
     void integrate_RK4(float dt);
     float calculate_single_accel(float theta);
+    void preventOverflow();
 
 public:
     Pendulum(float theta, float len);
