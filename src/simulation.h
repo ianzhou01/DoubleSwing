@@ -3,6 +3,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <random>
+#include <sstream>
 #include "pendulum.h"
 #include "double_pend.h"
 
@@ -25,6 +26,8 @@ class Simulation {
     sf::Font dragFont;
     sf::Font menuFont;
     sf::Text resetText;
+    sf::Text debugVel1, debugVel2;
+    sf::Text pos1, pos2;
     sf::Text dragText;
     bool showDragText;
     bool paused;
@@ -43,6 +46,7 @@ class Simulation {
     static float distance(float x1, float y1, float x2, float y2);
     void resetAll();
     void checkMenuClick(sf::Event &event);
+    void updatePhysicsText();
 public:
     Simulation();
     void operator()();

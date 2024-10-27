@@ -2,7 +2,7 @@
 
 
 Simulation::Simulation() : win(sf::VideoMode(WIDTH, HEIGHT), "DoubleSwing"),
-                           doublePendulum(0.f, 4.f, 2.f, 0.f, 4.f, 2.f, 0.9995f), // Example initial random state
+                           doublePendulum(1.f, 4.f, 2.f, 1.f, 4.f, 2.f, 0.9995f), // Example initial random state
                            pivot(PIVOT_RAD), isDraggingP1(false), isDraggingP2(false),
                            showDragText(true), paused(false) {
 
@@ -36,6 +36,30 @@ Simulation::Simulation() : win(sf::VideoMode(WIDTH, HEIGHT), "DoubleSwing"),
     resetText.setCharacterSize(20);
     resetText.setFillColor(sf::Color::Black);
     resetText.setPosition(WIDTH - 90, 8);
+
+    debugVel1.setFont(menuFont);
+    debugVel1.setString("V1: 0.00");
+    debugVel1.setCharacterSize(20);
+    debugVel1.setFillColor(sf::Color::Black);
+    debugVel1.setPosition(50, 8);
+
+    debugVel2.setFont(menuFont);
+    debugVel2.setString("V2: 0.00");
+    debugVel2.setCharacterSize(20);
+    debugVel2.setFillColor(sf::Color::Black);
+    debugVel2.setPosition(180, 8);
+
+    pos1.setFont(menuFont);
+    pos1.setString("A1: 0.00\xB0");
+    pos1.setCharacterSize(20);
+    pos1.setFillColor(sf::Color::Black);
+    pos1.setPosition(310, 8);
+
+    pos2.setFont(menuFont);
+    pos2.setString("A2: 0.00\xB0");
+    pos2.setCharacterSize(20);
+    pos2.setFillColor(sf::Color::Black);
+    pos2.setPosition(440, 8);
 
     pivot.setFillColor(sf::Color::Green);
     pivot.setOrigin(PIVOT_RAD, PIVOT_RAD);
@@ -88,6 +112,28 @@ void Simulation::operator()() {
     }
 }
 
+void Simulation::updatePhysicsText() {
+    std::ostringstream ss;
+    ss.precision(2);
+    ss << std::fixed;
+
+    ss.str("");  // Clear stream
+    ss << "V1: " << -1.0f * doublePendulum.p1.getSpeed(); // To reflect counterclockwise convention
+    debugVel1.setString(ss.str());
+
+    ss.str("");
+    ss << "V2: " << -1.0f * doublePendulum.p2.getSpeed();
+    debugVel2.setString(ss.str());
+
+    ss.str("");
+    ss << "A1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
+    pos1.setString(ss.str());
+
+    ss.str("");
+    ss << "A2: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p2.getThetaNorm())) << "\xB0";
+    pos2.setString(ss.str());
+}
+
 void Simulation::draw_all() {
     win.draw(pivot);  // Draw pivot point
     doublePendulum.draw(win, CENTER_X, CENTER_Y, false);  // Draw pendulum
@@ -99,6 +145,12 @@ void Simulation::draw_all() {
     win.draw(menuBar);
     win.draw(resetButton);
     win.draw(resetText);
+
+    updatePhysicsText();
+    win.draw(debugVel1);
+    win.draw(debugVel2);
+    win.draw(pos1);
+    win.draw(pos2);
 }
 
 float Simulation::distance(float x1, float y1, float x2, float y2) {
@@ -110,12 +162,12 @@ void Simulation::handle_click(sf::Event &event) {
         sf::Vector2i mousePos = sf::Mouse::getPosition(win);
 
         // Position of p1 weight
-        float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(doublePendulum.p1.getTheta()));
-        float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(doublePendulum.p1.getTheta()));
+        float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(doublePendulum.p1.getThetaRaw()));
+        float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(doublePendulum.p1.getThetaRaw()));
 
         // Position of p2 weight
-        float p2X = (float)(p1X + PX_METER_RATIO * doublePendulum.p2.getLen() * sin(doublePendulum.p2.getTheta()));
-        float p2Y = (float)(p1Y - PX_METER_RATIO * doublePendulum.p2.getLen() * cos(doublePendulum.p2.getTheta()));
+        float p2X = (float)(p1X + PX_METER_RATIO * doublePendulum.p2.getLen() * sin(doublePendulum.p2.getThetaRaw()));
+        float p2Y = (float)(p1Y - PX_METER_RATIO * doublePendulum.p2.getLen() * cos(doublePendulum.p2.getThetaRaw()));
 
         float distP1 = distance(mousePos.x, mousePos.y, p1X, HEIGHT - p1Y);
         if (distP1 <= doublePendulum.p1.weight.getRadius() * 8) {
@@ -145,25 +197,40 @@ void Simulation::handle_mouse_move(sf::Event &event) {
             float dy = currentMousePos.y - CENTER_Y;
             float newTheta = atan2f(dy, dx) - PI / 2;
 
-            float newSpeed = (newTheta - doublePendulum.p1.getTheta()) / dt;
+            Utility::normalize_angle(newTheta);
+
+            // Calculate raw theta change (accounting for jumps)
+            float deltaTheta = fmod(newTheta - doublePendulum.p1.getThetaRaw(), 2 * PI);
+            if (deltaTheta > PI)
+                deltaTheta -= 2 * PI;
+            else if (deltaTheta < -PI)
+                deltaTheta += 2 * PI;
+            float newSpeed = deltaTheta / dt;
 
             Utility::clamp_speed(newSpeed);    // To not go crazy
+
             doublePendulum.p1.setSpeed(newSpeed); // Update speed for release physics
             doublePendulum.p1.setTheta(newTheta); // Update position while dragging
         }
 
         if (isDraggingP2) {
             // Calculate angle theta2 based on mouse position
-            float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(doublePendulum.p1.getTheta()));
-            float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(doublePendulum.p1.getTheta()));
+            float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(
+                    doublePendulum.p1.getThetaRaw()));
+            float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(
+                    doublePendulum.p1.getThetaRaw()));
 
             float dx = currentMousePos.x - p1X;
             float dy = currentMousePos.y - (HEIGHT - p1Y);
 
             float newTheta = atan2f(dy, dx) - PI / 2;
-            float newSpeed = (newTheta - doublePendulum.p2.getTheta()) / dt;
+            Utility::normalize_angle(newTheta);
+
+            float deltaTheta = fmod(newTheta - doublePendulum.p2.getThetaRaw() + PI, 2 * PI) - PI;
+            float newSpeed = deltaTheta / dt;
 
             Utility::clamp_speed(newSpeed);
+
             doublePendulum.p2.setSpeed(newSpeed);
             doublePendulum.p2.setTheta(newTheta);
         }

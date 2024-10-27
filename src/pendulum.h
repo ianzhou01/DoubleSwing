@@ -13,7 +13,8 @@ const int PX_METER_RATIO = 40;
 
 class Pendulum {
     float len;
-    float theta;
+    float thetaRaw;
+    float thetaNormal;
     float accel;
     float omega;
     float friction;
@@ -26,8 +27,8 @@ class Pendulum {
 public:
     Pendulum(float theta, float len);
     Pendulum(float theta, float len, float fric);
-//    Pendulum(float theta, float len, int weightSize);
-//    Pendulum(float theta, float len, float fric, int weightSize);
+//    Pendulum(float thetaRaw, float len, int weightSize);
+//    Pendulum(float thetaRaw, float len, float fric, int weightSize);
     void update();
     void setCoords(sf::RenderWindow &win, int centerX, int centerY);
     void draw(sf::RenderWindow &win, int centerX, int centerY, bool paused);
@@ -35,7 +36,8 @@ public:
     friend class DoublePendulum;
 
     float getLen() const;
-    float getTheta() const;
+    float getThetaRaw() const;
+    float getThetaNorm() const;
     float getSpeed() const;
 
     void setTheta(float theta);
