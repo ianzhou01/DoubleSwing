@@ -41,9 +41,11 @@ public:
     float getThetaRaw() const;
     float getThetaNorm() const;
     float getSpeed() const;
+    float getAccel() const;
 
     void setTheta(float theta);
     void setSpeed(float v);
+    void setAccel(float acc);
 
     sf::CircleShape weight;
 };

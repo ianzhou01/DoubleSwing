@@ -24,13 +24,14 @@ class Simulation {
     sf::RectangleShape resetButton;
 
     sf::Font dragFont;
-    sf::Font menuFont;
+    sf::Font menuFont, greekFont;
     sf::Text resetText;
     sf::Text debugVel1, debugVel2;
     sf::Text pos1, pos2;
     sf::Text dragText;
     bool showDragText;
     bool paused;
+    bool secondClock;
 
     bool isDraggingP1, isDraggingP2;
     sf::Clock clock;
@@ -43,7 +44,6 @@ class Simulation {
 //    bool handle_mouse_move_buttons(int x, int y);
 //    bool handle_mouse_move_nfs(int x, int y);
 
-    static float distance(float x1, float y1, float x2, float y2);
     void resetAll();
     void checkMenuClick(sf::Event &event);
     void updatePhysicsText();

@@ -5,14 +5,14 @@ DoublePendulum::DoublePendulum(float theta1, float l1, float mass1, float theta2
         p1(theta1, l1),
         p2(theta2, l2),
         mass1(mass1),
-        mass2(mass2) {}
+        mass2(mass2), damp(2.f), stiffness(1.0f) {}
 
 DoublePendulum::DoublePendulum(float theta1, float l1, float mass1, float theta2, float l2, float mass2,
                                float fric) :
         p1(theta1, l1, fric),
         p2(theta2, l2, fric),
         mass1(mass1),
-        mass2(mass2) {}
+        mass2(mass2), damp(2.f), stiffness(1.0f) {}
 
 float DoublePendulum::calculate_accel_p1(float theta1, float omega1, float theta2, float omega2) const {
     // Euler-Lagrange numerical computation
@@ -32,10 +32,23 @@ float DoublePendulum::calculate_accel_p2(float theta1, float omega1, float theta
                               / (p2.len * (2 * mass1 + mass2 * (1 - cos(2 * theta1 - 2 * theta2)))));
 }
 
+float DoublePendulum::calc_accel_p2_dragging(float theta2, float omega2) const {
+    float p1_accel_x = p1.accel * PX_METER_RATIO * p1.len * cos(p1.thetaRaw);
+    float p1_accel_y = p1.accel * PX_METER_RATIO * p1.len * sin(p1.thetaRaw);
+    return -((cos(theta2) * p1_accel_x + sin(theta2) * p1_accel_y) / p2.len) // motion of anchor point
+           - (g / p2.len) * sin(theta2) // vertical gravity factor
+           - (damp * omega2 / (mass2 * p2.len * p2.len)); // damping force
+}
+
 void DoublePendulum::integrateBoth_Euler(float dt) {
     p1.omega += calculate_accel_p1(p1.thetaRaw, p1.omega, p2.thetaRaw, p2.omega) * dt;
     p2.omega += calculate_accel_p2(p1.thetaRaw, p1.omega, p2.thetaRaw, p2.omega) * dt;
     p1.thetaRaw += p1.omega * dt;
+    p2.thetaRaw += p2.omega * dt;
+}
+
+void DoublePendulum::integrateP2_Euler(float dt) {
+    p2.omega += calc_accel_p2_dragging(p2.thetaRaw, p2.omega) * dt;
     p2.thetaRaw += p2.omega * dt;
 }
 
@@ -87,22 +100,22 @@ void DoublePendulum::integrateBoth_RK4(float dt) {
 void DoublePendulum::integrateP2_RK4(float dt) {
     // k1
     float k1_omega2 = p2.omega;
-    float k1_accel2 = calculate_accel_p2(p1.thetaRaw, p1.omega, p2.thetaRaw, p2.omega);
+    float k1_accel2 = calc_accel_p2_dragging(p2.thetaRaw, p2.omega);
 
     // k2
     float k2_theta2 = p2.thetaRaw + 0.5 * k1_omega2 * dt;
     float k2_omega2 = p2.omega + 0.5 * k1_accel2 * dt;
-    float k2_accel2 = calculate_accel_p2(p1.thetaRaw, p1.omega, k2_theta2, k2_omega2);
+    float k2_accel2 = calc_accel_p2_dragging(k2_theta2, k2_omega2);
 
     // k3
     float k3_theta2 = p2.thetaRaw + 0.5 * k2_omega2 * dt;
     float k3_omega2 = p2.omega + 0.5 * k2_accel2 * dt;
-    float k3_accel2 = calculate_accel_p2(p1.thetaRaw, p1.omega, k3_theta2, k3_omega2);
+    float k3_accel2 = calc_accel_p2_dragging( k3_theta2, k3_omega2);
 
     // k4
     float k4_theta2 = p2.thetaRaw + k3_omega2 * dt;
     float k4_omega2 = p2.omega + k3_accel2 * dt;
-    float k4_accel2 = calculate_accel_p2(p1.thetaRaw, p1.omega, k4_theta2, k4_omega2);
+    float k4_accel2 = calc_accel_p2_dragging( k4_theta2, k4_omega2);
 
     p2.thetaRaw += (dt / 6.0) * (k1_omega2 + 2 * k2_omega2 + 2 * k3_omega2 + k4_omega2);
     p2.thetaNormal = -1.0f * p2.thetaRaw;
@@ -127,8 +140,8 @@ void DoublePendulum::updateP2() {
     float dt = 1.0f / FPS;
 
     integrateP2_RK4(dt);
-
-    p2.omega *= p2.friction;
+    //integrateP2_Euler(dt);
+    //p2.omega *= p2.friction; // Damping factor already included in forced accel calculation**
 }
 
 void DoublePendulum::preventOverflow() {
@@ -149,6 +162,24 @@ void DoublePendulum::draw(sf::RenderWindow &win, int centerX, int centerY, bool 
     win.draw(p2.arm);
     win.draw(p1.weight);
     win.draw(p2.weight);
+}
+
+void DoublePendulum::update_p1_forced_accel(const sf::Vector2f &mousePos, float dt) {
+    // Get current position in pixels
+    float pX = CENTER_X - PX_METER_RATIO * p1.len * sin(p1.thetaRaw);
+    float pY = CENTER_Y - PX_METER_RATIO * p1.len * cos(p1.thetaRaw);
+
+    // Calculate velocity components from omega
+    float v_x = p1.omega * PX_METER_RATIO * p1.len * cos(p1.thetaRaw);
+    float v_y = p1.omega * PX_METER_RATIO * p1.len * sin(p1.thetaRaw);
+
+    // Calculate accelerations
+    float a_x = -v_x * damp + stiffness * (mousePos.x - pX);
+    float a_y = -v_y * damp + stiffness * (mousePos.y - pY);
+
+    // Calculate angular acceleration
+    float r = p1.len * PX_METER_RATIO;
+    p1.accel = (a_x * cos(p1.thetaRaw) + a_y * sin(p1.thetaRaw)) / r;
 }
 
 

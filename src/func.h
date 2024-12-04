@@ -7,5 +7,6 @@ public:
     static float deg_to_rad(float deg);
     static void normalize_angle(float &rad);
     static void clamp_speed(float &v);
+    static float distance(float x1, float y1, float x2, float y2);
 };
 

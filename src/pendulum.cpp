@@ -171,3 +171,11 @@ void Pendulum::setSpeed(float v) {
     omega = v;
 }
 
+void Pendulum::setAccel(float acc) {
+    accel = acc;
+}
+
+float Pendulum::getAccel() const {
+    return accel;
+}
+

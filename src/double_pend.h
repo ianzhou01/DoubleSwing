@@ -7,11 +7,15 @@ class DoublePendulum {
     Pendulum p1;
     Pendulum p2;
     float mass1, mass2;
+    float damp, stiffness;
 
     float calculate_accel_p1(float theta1, float omega1, float theta2, float omega2) const;
     float calculate_accel_p2(float theta1, float omega1, float theta2, float omega2) const;
+    void update_p1_forced_accel(const sf::Vector2f &mousePos, float dt);
+    float calc_accel_p2_dragging(float theta2, float omega2) const;
 
     void integrateBoth_Euler(float dt);
+    void integrateP2_Euler(float dt);
     void integrateBoth_RK4(float dt);
     void integrateP2_RK4(float dt);
     void preventOverflow();

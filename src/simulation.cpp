@@ -2,9 +2,9 @@
 
 
 Simulation::Simulation() : win(sf::VideoMode(WIDTH, HEIGHT), "DoubleSwing"),
-                           doublePendulum(1.f, 4.f, 2.f, 1.f, 4.f, 2.f, 0.9995f), // Example initial random state
+                           doublePendulum(0.f, 4.f, 2.f, 0.f, 4.f, 2.f, 0.9995f), // Example initial random state
                            pivot(PIVOT_RAD), isDraggingP1(false), isDraggingP2(false),
-                           showDragText(true), paused(false) {
+                           showDragText(true), paused(false), secondClock(false) {
 
     // Set pivot orb style
     if (!dragFont.loadFromFile("resources/RubikDirt-Regular.ttf")) {
@@ -12,6 +12,9 @@ Simulation::Simulation() : win(sf::VideoMode(WIDTH, HEIGHT), "DoubleSwing"),
         throw std::runtime_error("Error loading fonts!");
     }
     if (!menuFont.loadFromFile("resources/Galindo-Regular.ttf")) {
+        throw std::runtime_error("Error loading fonts!");
+    }
+    if (!greekFont.loadFromFile("resources/DejaVuSans.ttf")) {
         throw std::runtime_error("Error loading fonts!");
     }
 
@@ -37,25 +40,25 @@ Simulation::Simulation() : win(sf::VideoMode(WIDTH, HEIGHT), "DoubleSwing"),
     resetText.setFillColor(sf::Color::Black);
     resetText.setPosition(WIDTH - 90, 8);
 
-    debugVel1.setFont(menuFont);
+    debugVel1.setFont(greekFont);
     debugVel1.setString("V1: 0.00");
     debugVel1.setCharacterSize(20);
     debugVel1.setFillColor(sf::Color::Black);
     debugVel1.setPosition(50, 8);
 
-    debugVel2.setFont(menuFont);
+    debugVel2.setFont(greekFont);
     debugVel2.setString("V2: 0.00");
     debugVel2.setCharacterSize(20);
     debugVel2.setFillColor(sf::Color::Black);
     debugVel2.setPosition(180, 8);
 
-    pos1.setFont(menuFont);
+    pos1.setFont(greekFont);
     pos1.setString("A1: 0.00\xB0");
     pos1.setCharacterSize(20);
     pos1.setFillColor(sf::Color::Black);
     pos1.setPosition(310, 8);
 
-    pos2.setFont(menuFont);
+    pos2.setFont(greekFont);
     pos2.setString("A2: 0.00\xB0");
     pos2.setCharacterSize(20);
     pos2.setFillColor(sf::Color::Black);
@@ -107,6 +110,7 @@ void Simulation::operator()() {
         draw_all();
 
         win.display();
+        secondClock = !secondClock;
     }
 }
 
@@ -115,18 +119,18 @@ void Simulation::updatePhysicsText() {
     ss.precision(2);
     ss << std::fixed;
 
-    if (!isDraggingP1) {
+    //if (!isDraggingP1) {
         ss.str("");  // Clear stream
-        ss << "V1: " << ((doublePendulum.p1.getSpeed() != 0) ? -1.0f * doublePendulum.p1.getSpeed()
-                                                             : doublePendulum.p1.getSpeed()); // To reflect counterclockwise convention
+        ss << "\u03C9" << "A1: " << ((doublePendulum.p1.getAccel() != 0) ? -1.0f * doublePendulum.p1.getAccel()
+                                                             : doublePendulum.p1.getAccel()); // To reflect counterclockwise convention
         debugVel1.setString(ss.str());
-    }
-    else
-        debugVel1.setString("V1: Held");
+    //}
+    //else
+    //    debugVel1.setString("V1: Held");
 
     if (!isDraggingP2) {
         ss.str("");
-        ss << "V2: " << ((doublePendulum.p2.getSpeed() != 0) ? -1.0f * doublePendulum.p2.getSpeed()
+        ss << "\u03C9" << "2: " << ((doublePendulum.p2.getSpeed() != 0) ? -1.0f * doublePendulum.p2.getSpeed()
                                                              : doublePendulum.p2.getSpeed());
         debugVel2.setString(ss.str());
     }
@@ -134,11 +138,11 @@ void Simulation::updatePhysicsText() {
         debugVel2.setString("V2: Held");
 
     ss.str("");
-    ss << "A1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
+    ss << "θ" << "1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
     pos1.setString(ss.str());
 
     ss.str("");
-    ss << "A2: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p2.getThetaNorm())) << "\xB0";
+    ss << "θ" << "2: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p2.getThetaNorm())) << "\xB0";
     pos2.setString(ss.str());
 }
 
@@ -154,16 +158,15 @@ void Simulation::draw_all() {
     win.draw(resetButton);
     win.draw(resetText);
 
-    updatePhysicsText();
+    if (secondClock)
+        updatePhysicsText(); // Update every second frame
     win.draw(debugVel1);
     win.draw(debugVel2);
     win.draw(pos1);
     win.draw(pos2);
 }
 
-float Simulation::distance(float x1, float y1, float x2, float y2) {
-    return sqrtf((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-}
+
 
 void Simulation::handle_click(sf::Event &event) {
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
@@ -177,14 +180,14 @@ void Simulation::handle_click(sf::Event &event) {
         float p2X = (float)(p1X - PX_METER_RATIO * doublePendulum.p2.getLen() * sin(doublePendulum.p2.getThetaRaw()));
         float p2Y = (float)(p1Y - PX_METER_RATIO * doublePendulum.p2.getLen() * cos(doublePendulum.p2.getThetaRaw()));
 
-        float distP1 = distance(mousePos.x, mousePos.y, p1X, HEIGHT - p1Y);
+        float distP1 = Utility::distance(mousePos.x, mousePos.y, p1X, HEIGHT - p1Y);
         if (distP1 <= doublePendulum.p1.weight.getRadius() * 8) {
             isDraggingP1 = true; // Set dragging state without tracking mouse position here
             showDragText = false;
             return;
         }
 
-        float distP2 = distance(mousePos.x, mousePos.y, p2X, HEIGHT - p2Y);
+        float distP2 = Utility::distance(mousePos.x, mousePos.y, p2X, HEIGHT - p2Y);
         if (distP2 <= doublePendulum.p2.weight.getRadius() * 4) {
             isDraggingP2 = true; // Set dragging state for second pendulum
             showDragText = false;
@@ -217,13 +220,15 @@ void Simulation::handle_mouse_move() {
 
             Utility::clamp_speed(newSpeed);    // To not go crazy
 
+            // Find acceleration
             doublePendulum.p1.setSpeed(newSpeed); // Update speed for release physics
             doublePendulum.p1.setTheta(newTheta); // Update position while dragging
+            doublePendulum.update_p1_forced_accel(currentMousePos, dt);
         }
 
         if (isDraggingP2) {
             // Calculate angle theta2 based on mouse position
-            float p1X = (float)(CENTER_X + PX_METER_RATIO * doublePendulum.p1.getLen() * sin(
+            float p1X = (float)(CENTER_X - PX_METER_RATIO * doublePendulum.p1.getLen() * sin(
                     doublePendulum.p1.getThetaRaw()));
             float p1Y = (float)(CENTER_Y - PX_METER_RATIO * doublePendulum.p1.getLen() * cos(
                     doublePendulum.p1.getThetaRaw()));
@@ -247,7 +252,9 @@ void Simulation::handle_mouse_move() {
 
 void Simulation::handle_mouse_release(sf::Event &event) {
     if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
-        // Reset dragging state and mouse history
+        // Reset dragging state
+        if (isDraggingP1)
+            doublePendulum.p1.setAccel(0.0f); // reset to default values when not tracked
         isDraggingP1 = false;
         isDraggingP2 = false;
     }
@@ -271,4 +278,3 @@ void Simulation::checkMenuClick(sf::Event &event) {
         }
     }
 }
-
