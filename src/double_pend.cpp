@@ -94,6 +94,9 @@ void DoublePendulum::integrateBoth_RK4(float dt) {
     Utility::normalize_angle(p2.thetaNormal);
     p2.omega += (dt / 6.0) * (k1_accel2 + 2 * k2_accel2 + 2 * k3_accel2 + k4_accel2);
 
+    p1.accel = calculate_accel_p1(p1.thetaRaw, p1.omega, p2.thetaRaw, p2.omega);
+    p2.accel = calculate_accel_p2(p1.thetaRaw, p1.omega, p2.thetaRaw, p2.omega);
+
     preventOverflow();
 }
 
@@ -124,6 +127,8 @@ void DoublePendulum::integrateP2_RK4(float dt) {
     p2.omega += (dt / 6.0) * (k1_accel2 + 2 * k2_accel2 + 2 * k3_accel2 + k4_accel2);
     Utility::clamp_speed(p2.omega);
     p2.preventOverflow();
+
+    p2.accel = calc_accel_p2_dragging(p2.thetaRaw, p2.omega);
 }
 
 void DoublePendulum::updateBoth() {

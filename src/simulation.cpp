@@ -103,7 +103,7 @@ void Simulation::operator()() {
             doublePendulum.updateBoth();
         }
         else if (!isDraggingP2 && isDraggingP1)
-            doublePendulum.updateP2();
+            doublePendulum.updateP2(); // TODO: implement functionality
 
         win.clear(sf::Color::White);
 
@@ -119,18 +119,18 @@ void Simulation::updatePhysicsText() {
     ss.precision(2);
     ss << std::fixed;
 
-    //if (!isDraggingP1) {
+    if (!isDraggingP1) {
         ss.str("");  // Clear stream
-        ss << "\u03C9" << "A1: " << ((doublePendulum.p1.getAccel() != 0) ? -1.0f * doublePendulum.p1.getAccel()
-                                                             : doublePendulum.p1.getAccel()); // To reflect counterclockwise convention
+        ss << "V1: " << ((doublePendulum.p1.getSpeed() != 0) ? -1.0f * doublePendulum.p1.getSpeed()
+                                                             : doublePendulum.p1.getSpeed()); // To reflect counterclockwise convention
         debugVel1.setString(ss.str());
-    //}
-    //else
-    //    debugVel1.setString("V1: Held");
+    }
+    else
+        debugVel1.setString("V1: Held");
 
     if (!isDraggingP2) {
         ss.str("");
-        ss << "\u03C9" << "2: " << ((doublePendulum.p2.getSpeed() != 0) ? -1.0f * doublePendulum.p2.getSpeed()
+        ss << "V2: " << ((doublePendulum.p2.getSpeed() != 0) ? -1.0f * doublePendulum.p2.getSpeed()
                                                              : doublePendulum.p2.getSpeed());
         debugVel2.setString(ss.str());
     }
@@ -138,11 +138,11 @@ void Simulation::updatePhysicsText() {
         debugVel2.setString("V2: Held");
 
     ss.str("");
-    ss << "θ" << "1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
+    ss << "P1: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p1.getThetaNorm())) << "\xB0";
     pos1.setString(ss.str());
 
     ss.str("");
-    ss << "θ" << "2: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p2.getThetaNorm())) << "\xB0";
+    ss << "P2: " << static_cast<int>(Utility::rad_to_deg(doublePendulum.p2.getThetaNorm())) << "\xB0";
     pos2.setString(ss.str());
 }
 
@@ -223,7 +223,7 @@ void Simulation::handle_mouse_move() {
             // Find acceleration
             doublePendulum.p1.setSpeed(newSpeed); // Update speed for release physics
             doublePendulum.p1.setTheta(newTheta); // Update position while dragging
-            doublePendulum.update_p1_forced_accel(currentMousePos, dt);
+            //doublePendulum.update_p1_forced_accel(currentMousePos, dt);
         }
 
         if (isDraggingP2) {
@@ -253,7 +253,7 @@ void Simulation::handle_mouse_move() {
 void Simulation::handle_mouse_release(sf::Event &event) {
     if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
         // Reset dragging state
-        if (isDraggingP1)
+        if (isDraggingP1) // TODO: possible fix
             doublePendulum.p1.setAccel(0.0f); // reset to default values when not tracked
         isDraggingP1 = false;
         isDraggingP2 = false;
