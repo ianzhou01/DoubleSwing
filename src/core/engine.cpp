@@ -12,8 +12,7 @@ Engine::Engine(const Params& params, const State& s0) : p(params), s(s0) {
 }
 
 void Engine::accel(const State& st, double& a1, double& a2) const {
-    // Based on standard double pendulum equations (same structure as your old calculate_accel_p1/p2).
-    // Angles measured from vertical. (Your old code mixes signs; we’ll keep consistent and let UI decide visuals.)
+    // Angles measured from vertical
     const double th1 = st.th1;
     const double th2 = st.th2;
     const double w1  = st.w1;
@@ -29,8 +28,7 @@ void Engine::accel(const State& st, double& a1, double& a2) const {
 
     const double denom = (2.0*m1 + m2 - m2*std::cos(2.0*dth));
 
-    // Protect against pathological denom ~ 0 (rare but can happen with bad params).
-    // If denom is tiny, accelerations can spike.
+    // Protect against denom ~ 0 spikes
     const double eps = 1e-12;
     const double denom1 = std::max(std::abs(denom), eps) * (denom < 0 ? -1.0 : 1.0);
 
@@ -47,8 +45,8 @@ void Engine::accel(const State& st, double& a1, double& a2) const {
             + w2*w2*l2*m2*std::cos(dth) ) )
          / (l2 * denom1);
 
-    // Simple viscous damping on angular velocities.
-    // This is not “physical” damping derived from Lagrangian dissipation but is stable and good enough.
+    // Simple viscous damping on angular velocities
+    // TODO: Not yet “physical” damping derived from Lagrangian dissipation.
     if (p.damping != 0.0) {
         a1 -= p.damping * w1;
         a2 -= p.damping * w2;
@@ -91,21 +89,21 @@ void Engine::rk4(State& st, double dt) const {
     st.th2 += (dt / 6.0) * (k1.th2 + 2.0*k2.th2 + 2.0*k3.th2 + k4.th2);
     st.w2  += (dt / 6.0) * (k1.w2  + 2.0*k2.w2  + 2.0*k3.w2  + k4.w2);
 
-    // Keep angles bounded to avoid precision blowups over long runs.
+    // Bound angles to avoid precision blowups over long runs
     st.th1 = normalize_angle(st.th1);
     st.th2 = normalize_angle(st.th2);
 }
 
 void Engine::step(double dt) {
-    // Optional: cap dt so if the app hiccups (tab-out), we don't explode.
+    // cap dt so tab-outs don't explode
     dt = std::clamp(dt, 0.0, 1.0/15.0);
 
     rk4(s, dt);
 }
 
 void Engine::bob_positions(double& x1, double& y1, double& x2, double& y2) const {
-    // Coordinates in meters, pivot at (0,0), +y downward for convenience in screen space.
-    // If you want +y up, flip signs in the renderer.
+    // coords in meters, pivot at (0,0), +y downward for convenience in screen space
+    // Note: for +y up, flip signs in the renderer
     x1 =  p.l1 * std::sin(s.th1);
     y1 =  p.l1 * std::cos(s.th1);
 
@@ -114,8 +112,8 @@ void Engine::bob_positions(double& x1, double& y1, double& x2, double& y2) const
 }
 
 double Engine::energy() const {
-    // Kinetic + potential (pivot at 0 potential). +y downward means potential uses -cos terms.
-    // Standard formula assuming point masses at the bobs.
+    // Note: Kinetic + potential (pivot at 0 potential). +y downward means potential uses -cos terms
+    // Assumes point masses at the bobs
     const double th1 = s.th1, th2 = s.th2;
     const double w1 = s.w1, w2 = s.w2;
 
