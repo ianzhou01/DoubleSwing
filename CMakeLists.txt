@@ -1,17 +1,27 @@
-cmake_minimum_required(VERSION 3.27)
-project(DoublePendulumSim)
+cmake_minimum_required(VERSION 3.21)
+project(DoubleSwing LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(DoublePendulumSim src/main.cpp
-        src/pendulum.cpp
-        src/simulation.cpp
-        src/func.cpp
-        src/double_pend.cpp)
+# ---- Core library (physics engine) ----
+add_library(doubleswing_core
+        src/core/engine.cpp
+        src/core/drag.cpp
+)
 
-target_link_libraries(DoublePendulumSim sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
-set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_DIR C:/SFML/lib/cmake/SFML)
-find_package(SFML 2.5.1 COMPONENTS system window graphics audio network REQUIRED)
+target_include_directories(doubleswing_core
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+)
 
-include_directories(c:/SFML/include/SFML)
+# ---- SFML app ----
+add_executable(doubleswing_sfml
+        src/app_sfml/main.cpp
+)
+
+target_link_libraries(doubleswing_sfml
+        PRIVATE
+        doubleswing_core
+        sfml-system sfml-window sfml-graphics
+)
