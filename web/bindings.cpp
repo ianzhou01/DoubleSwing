@@ -14,7 +14,7 @@ extern "C" {
     void ds_destroy(EngineHandle* h) { delete h; }
     void ds_step(EngineHandle* h, double dt) { h->eng.step(dt); }
 
-    // Cache positions in static storage (fine for single-engine demo)
+    // Cache positions in static storage (for single-engine demo)
     static double g_x1, g_y1, g_x2, g_y2;
 
     void ds_update_positions(EngineHandle* h) {

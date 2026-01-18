@@ -24,14 +24,13 @@ namespace ds {
             return omega;
         }
 
-        // raw omega from unwrapped delta / dt
         const double dtheta = unwrap_delta(theta, prev_theta);
         double omega_raw = dtheta / dt;
 
-        // clamp raw omega (this is the single biggest anti-explosion control)
+        // clamp raw omega (biggest anti-explosion control)
         omega_raw = clamp_abs(omega_raw, omega_max);
 
-        // low-pass filter: omega = (1-alpha)*omega + alpha*omega_raw
+        // low-pass filter
         alpha = std::clamp(alpha, 0.0, 1.0);
         omega = (1.0 - alpha) * omega + alpha * omega_raw;
 

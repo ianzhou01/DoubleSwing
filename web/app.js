@@ -12,10 +12,9 @@ function resize() {
 addEventListener("resize", resize);
 resize();
 
-// Load WASM
+// Load WASM, bind C funcs
 const mod = await createModule();
 
-// Bind C functions
 const ds_create = mod.cwrap("ds_create", "number",
     ["number","number","number","number","number","number","number","number","number","number"]);
 const ds_destroy = mod.cwrap("ds_destroy", null, ["number"]);
