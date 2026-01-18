@@ -41,12 +41,28 @@ let h = ds_create(
 
 // Anim loop
 let last = performance.now();
+let acc = 0.0;
+
+const FIXED_DT = 1 / 120;     // physics tick
+const MAX_FRAME = 1 / 15;     // cap huge tab-out jumps
+const MAX_STEPS = 8;          // prevent spiral-of-death
 
 function frame(t) {
-    const dt = Math.min((t - last) / 1000, 1 / 30);
+    let frameDt = (t - last) / 1000;
     last = t;
 
-    ds_step(h, dt);
+    // avoid giant dt after tab switches
+    frameDt = Math.min(frameDt, MAX_FRAME);
+
+    acc += frameDt;
+
+    let steps = 0;
+    while (acc >= FIXED_DT && steps < MAX_STEPS) {
+        ds_step(h, FIXED_DT);
+        steps++;
+        acc -= FIXED_DT;
+    }
+
     ds_update_positions(h);
 
     const x1 = ds_x1();
@@ -68,8 +84,13 @@ function draw(x1, y1, x2, y2) {
     const p0 = { x: ox, y: oy };
     const p1 = { x: ox + x1 * pxPerM, y: oy + y1 * pxPerM };
     const p2 = { x: ox + x2 * pxPerM, y: oy + y2 * pxPerM };
+    const snap = (v) => Math.round(v) + 0.5;
+    p0.x = snap(p0.x); p0.y = snap(p0.y);
+    p1.x = snap(p1.x); p1.y = snap(p1.y);
+    p2.x = snap(p2.x); p2.y = snap(p2.y);
 
     // rods
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(p0.x, p0.y);
     ctx.lineTo(p1.x, p1.y);
