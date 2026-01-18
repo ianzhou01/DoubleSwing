@@ -16,15 +16,15 @@ FetchContent_MakeAvailable(SFML)
 
 # -------- Core library (no SFML) --------
 add_library(doubleswing_core
-        src/core/engine.cpp
-        src/core/drag.cpp
+        src/engine.cpp
+        src/drag.cpp
 )
 target_include_directories(doubleswing_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # -------- SFML app --------
 add_executable(doubleswing_sfml
-        src/app_sfml/main.cpp
-        src/app_sfml/sfml_app.cpp
+        apps/desktop/main.cpp
+        apps/desktop/sfml_app.cpp
 )
 
 target_link_libraries(doubleswing_sfml PRIVATE
