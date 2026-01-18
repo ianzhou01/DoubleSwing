@@ -6,6 +6,52 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
+# -------- Core library (no SFML) --------
+add_library(doubleswing_core
+        src/engine.cpp
+        src/drag.cpp
+)
+target_include_directories(doubleswing_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+# ================================================================
+# Web / WASM build (Emscripten)
+# ================================================================
+if (EMSCRIPTEN)
+    add_executable(doubleswing_web
+            web/bindings.cpp
+    )
+    target_link_libraries(doubleswing_web PRIVATE doubleswing_core)
+
+    # Output name/path for web/app.js import
+    set_target_properties(doubleswing_web PROPERTIES
+            OUTPUT_NAME "doubleswing"
+            RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/web"
+    )
+
+    # linker flags
+    target_link_options(doubleswing_web PRIVATE
+            "SHELL:-s MODULARIZE=1"
+            "SHELL:-s EXPORT_ES6=1"
+            "SHELL:-s ENVIRONMENT=web"
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+            # export JS funcs
+            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_bob_positions']"
+            # export runtime helpers
+            "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall','getValue','setValue']"
+    )
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_link_options(doubleswing_web PRIVATE "SHELL:-O3")
+    endif()
+
+    # Skip SFML
+    return()
+endif()
+
+# ================================================================
+# Desktop build (SFML)
+# ================================================================
+
 # -------- SFML (only needed for the SFML frontend target) --------
 FetchContent_Declare(
         SFML
@@ -13,13 +59,6 @@ FetchContent_Declare(
         GIT_TAG 2.6.1
 )
 FetchContent_MakeAvailable(SFML)
-
-# -------- Core library (no SFML) --------
-add_library(doubleswing_core
-        src/engine.cpp
-        src/drag.cpp
-)
-target_include_directories(doubleswing_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # -------- SFML app --------
 add_executable(doubleswing_sfml
@@ -43,4 +82,3 @@ if (WIN32)
             $<TARGET_FILE_DIR:doubleswing_sfml>
     )
 endif()
-

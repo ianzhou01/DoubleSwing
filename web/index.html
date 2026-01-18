@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>DoubleSwing</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 40px; }
-        canvas { border: 1px solid #ccc; }
+        body { font-family: system-ui, sans-serif; margin: 0; }
+        canvas { display: block; width: 100vw; height: 100vh; background: white; }
     </style>
 </head>
 <body>
-<h1>DoubleSwing</h1>
-<p>Interactive double pendulum demo (web version coming soon).</p>
-<p><a href="https://github.com/ianzhou01/DoubleSwing">Source</a></p>
+<canvas id="c"></canvas>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
