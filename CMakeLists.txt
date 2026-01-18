@@ -33,3 +33,14 @@ target_link_libraries(doubleswing_sfml PRIVATE
         sfml-window
         sfml-system
 )
+
+if (WIN32)
+    add_custom_command(TARGET doubleswing_sfml POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:sfml-graphics>
+            $<TARGET_FILE:sfml-window>
+            $<TARGET_FILE:sfml-system>
+            $<TARGET_FILE_DIR:doubleswing_sfml>
+    )
+endif()
+

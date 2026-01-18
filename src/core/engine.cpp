@@ -53,6 +53,72 @@ void Engine::accel(const State& st, double& a1, double& a2) const {
     }
 }
 
+void Engine::bob1_cart_accel(const ds::Params& p,
+                                    double th1, double w1, double a1,
+                                    double& xdd, double& ydd) {
+    // x = l1*sin(th1), y = l1*cos(th1)
+    // xdd = l1*(a1*cos(th1) - w1^2*sin(th1))
+    // ydd = l1*(-a1*sin(th1) - w1^2*cos(th1))
+    const double s = std::sin(th1);
+    const double c = std::cos(th1);
+    xdd = p.l1 * (a1 * c - (w1*w1) * s);
+    ydd = p.l1 * (-a1 * s - (w1*w1) * c);
+}
+
+double Engine::accel_theta2_moving_pivot(double th2, double w2, double xdd, double ydd) const {
+    // Equation for pendulum angle from vertical when pivot accelerates:
+    // th2'' = -(g/l2) * sin(th2) - (xdd*cos(th2) + ydd*sin(th2))/l2 - damping*w2
+    const double s2 = std::sin(th2);
+    const double c2 = std::cos(th2);
+
+    double a2 = -(p.g / p.l2) * s2
+                - (xdd * c2 + ydd * s2) / p.l2;
+
+    if (p.damping != 0.0) a2 -= p.damping * w2;
+    return a2;
+}
+
+void Engine::rk4_th2(double& th2, double& w2, double dt, double xdd, double ydd) const {
+    auto deriv = [&](double th, double w) {
+        // d/dt th = w, d/dt w = a(th,w)
+        const double a = accel_theta2_moving_pivot(th, w, xdd, ydd);
+        return std::pair<double,double>(w, a);
+    };
+
+    const auto [k1_th, k1_w] = deriv(th2, w2);
+
+    const auto [k2_th, k2_w] = deriv(th2 + 0.5*dt*k1_th, w2 + 0.5*dt*k1_w);
+
+    const auto [k3_th, k3_w] = deriv(th2 + 0.5*dt*k2_th, w2 + 0.5*dt*k2_w);
+
+    const auto [k4_th, k4_w] = deriv(th2 + dt*k3_th, w2 + dt*k3_w);
+
+    th2 += (dt/6.0) * (k1_th + 2*k2_th + 2*k3_th + k4_th);
+    w2  += (dt/6.0) * (k1_w  + 2*k2_w  + 2*k3_w  + k4_w);
+
+    th2 = normalize_angle(th2);
+}
+
+void Engine::step_drag_p1(double dt, double th1, double w1, double a1) {
+    dt = std::clamp(dt, 0.0, 1.0/15.0);
+
+    // impose th1 dynamics from mouse
+    s.th1 = normalize_angle(th1);
+    s.w1  = w1;
+
+    // compute bob1 cartesian acceleration due to imposed motion
+    double xdd, ydd;
+    bob1_cart_accel(p, s.th1, s.w1, a1, xdd, ydd);
+
+    // integrate only th2,w2 under moving-pivot equation
+    double th2 = s.th2;
+    double w2  = s.w2;
+    rk4_th2(th2, w2, dt, xdd, ydd);
+
+    s.th2 = th2;
+    s.w2  = w2;
+}
+
 void Engine::rk4(State& st, double dt) const {
     // State vector: [th1, w1, th2, w2]
     auto deriv = [&](const State& x) -> State {
@@ -128,7 +194,7 @@ double Engine::energy() const {
 
     // With y down: height is -y, so potential increases when y decreases.
     // y1 = l1*cos(th1), y2 = y1 + l2*cos(th2)
-    const double U = -(m1 + m2)*g*l1*std::cos(th1) - m2*g*l2*std::cos(th2);
+    const double U = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
 
     return T + U;
 }
