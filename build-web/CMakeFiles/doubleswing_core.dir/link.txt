@@ -1,2 +1,0 @@
-C:\Users\ailee\emsdk\upstream\emscripten\emar.bat qc libdoubleswing_core.a CMakeFiles/doubleswing_core.dir/src/engine.cpp.o CMakeFiles/doubleswing_core.dir/src/drag.cpp.o
-C:\Users\ailee\emsdk\upstream\emscripten\emranlib.bat libdoubleswing_core.a
