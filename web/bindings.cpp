@@ -11,21 +11,18 @@ extern "C" {
         return new EngineHandle{ ds::Engine(p, s) };
     }
 
-    void ds_destroy(const EngineHandle* h) { delete h; }
-
+    void ds_destroy(EngineHandle* h) { delete h; }
     void ds_step(EngineHandle* h, double dt) { h->eng.step(dt); }
 
-    void ds_set_state(EngineHandle* h, double th1, double w1, double th2, double w2) {
-        h->eng.s = ds::State{th1, w1, th2, w2};
-    }
+    // Cache positions in static storage (fine for single-engine demo)
+    static double g_x1, g_y1, g_x2, g_y2;
 
-    void ds_get_state(const EngineHandle* h, double* th1, double* w1, double* th2, double* w2) {
-        *th1 = h->eng.s.th1; *w1 = h->eng.s.w1;
-        *th2 = h->eng.s.th2; *w2 = h->eng.s.w2;
+    void ds_update_positions(EngineHandle* h) {
+        h->eng.bob_positions(g_x1, g_y1, g_x2, g_y2);
     }
-
-    void ds_bob_positions(const EngineHandle* h, double* x1, double* y1, double* x2, double* y2) {
-        h->eng.bob_positions(*x1, *y1, *x2, *y2);
-    }
+    double ds_x1() { return g_x1; }
+    double ds_y1() { return g_y1; }
+    double ds_x2() { return g_x2; }
+    double ds_y2() { return g_y2; }
 
 }

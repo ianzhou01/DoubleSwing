@@ -35,9 +35,9 @@ if (EMSCRIPTEN)
             "SHELL:-s ENVIRONMENT=web"
             "SHELL:-s ALLOW_MEMORY_GROWTH=1"
             # export JS funcs
-            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_bob_positions']"
-            # export runtime helpers
-            "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall','getValue','setValue']"
+            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_update_positions','_ds_x1','_ds_y1','_ds_x2','_ds_y2']"
+            "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall']"
+            "SHELL:-s MALLOC=emmalloc"
     )
 
     if (CMAKE_BUILD_TYPE STREQUAL "Release")
