@@ -137,6 +137,7 @@ void SfmlApp::update(double dt) {
         if (!dragging1 && !dragging2) ss << engine.energy();
         else ss << " (driven)";
         ss << (dragging1 ? "  [dragging P1]" : (dragging2 ? "  [dragging P2]" : ""));
+        ss << "\nR: reset";
         hud.setString(ss.str());
     }
 }
