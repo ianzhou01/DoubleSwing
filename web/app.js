@@ -35,15 +35,15 @@ const damping = 0.0;
 
 let h = ds_create(
     l1, l2, m1, m2, g, damping,
-    0.3, 0.0,   // th1, w1
-    0.6, 0.0    // th2, w2
+    -1.3, 1.0,   // th1, w1
+    1.5, -1.5    // th2, w2
 );
 
 // Anim loop
 let last = performance.now();
 let acc = 0.0;
 
-const FIXED_DT = 1 / 120;     // physics tick
+const FIXED_DT = 1 / 240;     // physics tick
 const MAX_FRAME = 1 / 15;     // cap huge tab-out jumps
 const MAX_STEPS = 8;          // prevent spiral-of-death
 
