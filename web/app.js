@@ -1,6 +1,10 @@
 import createModule from "./doubleswing.js";
 
 const canvas = document.getElementById("c");
+const viewport = document.getElementById("viewport");
+const statusEl = document.getElementById("status");
+const keBar = document.getElementById("keBar");
+const peBar = document.getElementById("peBar");
 const ctx = canvas.getContext("2d");
 canvas.style.touchAction = "none";
 
@@ -94,7 +98,10 @@ function drawSpriteOrFallback(ctx, sprite, p, r, angleRad, fallbackFill) {
     filledCircle(ctx, p, r, fallbackFill);
 }
 
-const viewport = document.getElementById("viewport");
+function setStatus(msg, kind = "") {
+    statusEl.textContent = msg;
+    statusEl.className = "status" + (kind ? ` ${kind}` : "");
+}
 
 // resizer for canvas
 function resize() {
@@ -252,12 +259,6 @@ function readParamsFromUI() {
         g: clamp(num(ui.g), 0.0, 50),
         damping: clamp(num(ui.damping), 0.0, 5.0),
     };
-}
-
-const statusEl = document.getElementById("status");
-function setStatus(msg, kind = "") {
-    statusEl.textContent = msg;
-    statusEl.className = "status" + (kind ? ` ${kind}` : "");
 }
 
 ui.apply.addEventListener("click", () => {
@@ -423,6 +424,23 @@ const FIXED_DT = 1 / 240;
 const MAX_FRAME = 1 / 15;
 const MAX_STEPS = 8;
 
+function updateEnergyBar() {
+    const KE = ds_ke(h);
+    const PE = ds_pe(h);
+
+    // Shift PE so "visual PE energy" is >= 0 (stable proportions)
+    const E = KE + PE;
+
+    let keFrac = 0.5, peFrac = 0.5;
+    if (E > 1e-3) {
+        keFrac = KE / E;
+        peFrac = PE / E;
+    }
+
+    keBar.style.width = `${(keFrac * 100).toFixed(2)}%`;
+    peBar.style.width = `${(peFrac * 100).toFixed(2)}%`;
+}
+
 function frame(t) {
     let frameDt = (t - last) / 1000;
     last = t;
@@ -478,6 +496,7 @@ function frame(t) {
 
     draw(x1, y1, x2, y2);
     updateReadout();
+    updateEnergyBar();
 
     requestAnimationFrame(frame);
 }
