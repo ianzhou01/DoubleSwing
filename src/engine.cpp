@@ -46,7 +46,6 @@ void Engine::accel(const State& st, double& a1, double& a2) const {
          / (l2 * denom1);
 
     // Simple viscous damping on angular velocities
-    // TODO: Not yet “physical” damping derived from Lagrangian dissipation.
     if (p.damping != 0.0) {
         a1 -= p.damping * w1;
         a2 -= p.damping * w2;
@@ -190,7 +189,6 @@ ds::EnergyBreakdown Engine::energy_breakdown() const {
 
     const double ke = 0.5*m1*v1_sq + 0.5*m2*v2_sq;
 
-    // PE up to an additive constant (fine for UI)
     const double pe = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
 
     return {ke, pe};
