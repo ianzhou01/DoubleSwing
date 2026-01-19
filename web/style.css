@@ -198,14 +198,6 @@ pre#readout {
     min-height: 0;
     overflow: hidden;
 }
-.viewport::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url("./assets/grid.png") center/cover no-repeat;
-    opacity: 0.10;
-    pointer-events: none;
-}
 
 canvas {
     display: block;
