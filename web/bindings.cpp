@@ -39,4 +39,19 @@ extern "C" {
         h->eng.s.th2 = th2; h->eng.s.w2 = 0.0;
     }
 
+    // Param setters
+    void ds_set_l1(EngineHandle* h, double l1) { h->eng.p.l1 = l1; }
+    void ds_set_l2(EngineHandle* h, double l2) { h->eng.p.l2 = l2; }
+    void ds_set_m1(EngineHandle* h, double m1) { h->eng.p.m1 = m1; }
+    void ds_set_m2(EngineHandle* h, double m2) { h->eng.p.m2 = m2; }
+    void ds_set_g(EngineHandle* h, double g) { h->eng.p.g = g; }
+    void ds_set_damping(EngineHandle* h, double d) { h->eng.p.damping = d; }
+
+    // State getters (for HUD/readout)
+    double ds_th1(EngineHandle* h) { return h->eng.s.th1; }
+    double ds_th2(EngineHandle* h) { return h->eng.s.th2; }
+    double ds_w1 (EngineHandle* h) { return h->eng.s.w1; }
+    double ds_w2 (EngineHandle* h) { return h->eng.s.w2; }
+
+    double ds_energy(EngineHandle* h) { return h->eng.energy(); }
 }
