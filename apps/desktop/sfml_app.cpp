@@ -110,8 +110,9 @@ void SfmlApp::update(double dt) {
         double w1 = drag1.update(th1, dt, alpha, omega_max);
         if (std::abs(w1) < 0.05) w1 = 0.0; // deadband
 
+        double a1 = 0.0;
         // Note: estimating tangential angular acceleration with mouse input is too noisy for accuracy.
-        engine.step_drag_p1(dt, th1, w1, 0.0);
+        engine.step_drag_p1(dt, th1, w1, a1);
     } else if (dragging2) {
         const double th = theta_from_mouse_about_bob1(mouse);
         engine.s.th2 = th;
