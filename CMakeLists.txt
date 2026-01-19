@@ -35,7 +35,7 @@ if (EMSCRIPTEN)
             "SHELL:-s ENVIRONMENT=web"
             "SHELL:-s ALLOW_MEMORY_GROWTH=1"
             # export JS funcs
-            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_step_drag_p1','_ds_update_positions','_ds_x1','_ds_y1','_ds_x2','_ds_y2','_ds_set_th1','_ds_set_th2','_ds_set_w1','_ds_set_w2','_ds_reset','_ds_set_l1','_ds_set_l2','_ds_set_m1','_ds_set_m2','_ds_set_g','_ds_set_damping','_ds_th1','_ds_th2','_ds_w1','_ds_w2','_ds_energy']"
+            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_step_drag_p1','_ds_update_positions','_ds_x1','_ds_y1','_ds_x2','_ds_y2','_ds_set_th1','_ds_set_th2','_ds_set_w1','_ds_set_w2','_ds_reset','_ds_set_l1','_ds_set_l2','_ds_set_m1','_ds_set_m2','_ds_set_g','_ds_set_damping','_ds_th1','_ds_th2','_ds_w1','_ds_w2','_ds_ke','_ds_pe','_ds_energy']"
             "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall']"
             "SHELL:-s MALLOC=emmalloc"
     )
