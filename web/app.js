@@ -3,6 +3,8 @@ import createModule from "./doubleswing.js";
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
+canvas.style.touchAction = "none";
+
 function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.floor(innerWidth * dpr);
@@ -19,7 +21,7 @@ const ds_create = mod.cwrap("ds_create", "number",
     ["number","number","number","number","number","number","number","number","number","number"]);
 const ds_destroy = mod.cwrap("ds_destroy", null, ["number"]);
 const ds_step = mod.cwrap("ds_step", null, ["number","number"]);
-const ds_step_drag_p1 = mod.cwrap("ds_step_drag_p1", null, ["number", "number", "number","number"]);
+const ds_step_drag_p1 = mod.cwrap("ds_step_drag_p1", null, ["number","number","number","number","number"]);
 const ds_update_positions = mod.cwrap("ds_update_positions", null, ["number"]);
 
 const ds_x1 = mod.cwrap("ds_x1", "number", []);
@@ -33,11 +35,27 @@ const ds_set_w1  = mod.cwrap("ds_set_w1",  null, ["number","number"]);
 const ds_set_w2  = mod.cwrap("ds_set_w2",  null, ["number","number"]);
 const ds_reset   = mod.cwrap("ds_reset",   null, ["number","number","number"]);
 
+// param setters (h, val)
+const ds_set_l1      = mod.cwrap("ds_set_l1", null, ["number","number"]);
+const ds_set_l2      = mod.cwrap("ds_set_l2", null, ["number","number"]);
+const ds_set_m1      = mod.cwrap("ds_set_m1", null, ["number","number"]);
+const ds_set_m2      = mod.cwrap("ds_set_m2", null, ["number","number"]);
+const ds_set_damping = mod.cwrap("ds_set_damping", null, ["number","number"]);
+const ds_set_g       = mod.cwrap("ds_set_g", null, ["number","number"]);
+
+// state getters (h)
+const ds_th1 = mod.cwrap("ds_th1", "number", ["number"]);
+const ds_w1  = mod.cwrap("ds_w1",  "number", ["number"]);
+const ds_th2 = mod.cwrap("ds_th2", "number", ["number"]);
+const ds_w2  = mod.cwrap("ds_w2",  "number", ["number"]);
+
+const ds_energy = mod.cwrap("ds_energy", "number", ["number"]);
+
 // Create engine
 const l1 = 2.0, l2 = 2.0;
 const m1 = 1.0, m2 = 1.0;
 const g = 9.80665;
-const damping = 0.0;
+const damping = 0.02;
 
 let h = ds_create(
     l1, l2, m1, m2, g, damping,
@@ -52,8 +70,8 @@ let filtOmega = 0;
 
 const ALPHA = 0.20;      // low-pass filter strength
 const OMEGA_MAX = 12.0;  // clamp rad/s (tune)
-const GRAB1 = 14;        // px, match your draw radius
-const GRAB2 = 12;
+const GRAB1 = 15;        // px, match your draw radius
+const GRAB2 = 13;
 
 function normalizeAngle(a) {
     while (a < -Math.PI) a += 2*Math.PI;
@@ -97,37 +115,64 @@ function getMouse(e) {
     };
 }
 
-canvas.addEventListener("mousedown", (e) => {
-    const m = getMouse(e);
+let activePointerId = null;
 
-    // compute current pixel positions (same math as draw)
-    const pxPerM = Math.min(innerWidth, innerHeight) * 0.4 / (l1 + l2);
+function setLastPosFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    window._lastMousePos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+canvas.addEventListener("pointerdown", (e) => {
+    // single-pointer only (ignore extra fingers)
+        if (activePointerId !== null) return;
+    activePointerId = e.pointerId;
+    try { canvas.setPointerCapture(activePointerId); } catch {}
+
+        setLastPosFromEvent(e);
+    const m = window._lastMousePos;
+
+        // compute current pixel positions (same math as draw)
+            const pxPerM = Math.min(innerWidth, innerHeight) * 0.4 / (l1 + l2);
     const ox = innerWidth * 0.5;
     const oy = innerHeight * 0.5;
 
-    ds_update_positions(h);
+        ds_update_positions(h);
     const x1 = ds_x1(), y1 = ds_y1(), x2 = ds_x2(), y2 = ds_y2();
 
-    const p1 = { x: ox + x1 * pxPerM, y: oy + y1 * pxPerM };
+        const p1 = { x: ox + x1 * pxPerM, y: oy + y1 * pxPerM };
     const p2 = { x: ox + x2 * pxPerM, y: oy + y2 * pxPerM };
 
-    const d1 = Math.hypot(m.x - p1.x, m.y - p1.y);
+        const d1 = Math.hypot(m.x - p1.x, m.y - p1.y);
     const d2 = Math.hypot(m.x - p2.x, m.y - p2.y);
 
-    if (d2 <= GRAB2) dragging = 2;
+        if (d2 <= GRAB2) dragging = 2;
     else if (d1 <= GRAB1) dragging = 1;
     else dragging = 0;
 
-    // reset filter so first derivative isn't garbage
-    hasPrev = false;
+        // reset filter so first derivative isn't garbage
+            hasPrev = false;
 
+        e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener("pointermove", (e) => {
+    if (e.pointerId !== activePointerId) return;
+    setLastPosFromEvent(e);
     e.preventDefault();
-});
+}, { passive: false });
 
-addEventListener("mouseup", () => {
+function endPointer(e) {
+    if (e.pointerId !== activePointerId) return;
     dragging = 0;
     hasPrev = false; // fresh start next drag
-});
+    try { canvas.releasePointerCapture(activePointerId); } catch {}
+    activePointerId = null;
+    e.preventDefault();
+}
+
+canvas.addEventListener("pointerup", endPointer, { passive: false });
+canvas.addEventListener("pointercancel", endPointer, { passive: false });
+canvas.addEventListener("pointerleave", endPointer, { passive: false });
 
 addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
@@ -135,13 +180,6 @@ addEventListener("keydown", (e) => {
         hasPrev = false;
     }
 });
-
-addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    window._lastMousePos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-});
-
-
 
 // Anim loop
 let last = performance.now();
