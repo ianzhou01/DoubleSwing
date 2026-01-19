@@ -4,6 +4,97 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 canvas.style.touchAction = "none";
 
+const THEME = {
+    rod: "#cbd5e1",
+    outline: "rgb(255,255,255)",
+    bob1: "#7dd3fc",
+    bob2: "#fda4af",
+    pivot: "#34d399",
+    bg: "rgba(255,255,255,0.0)"
+};
+
+function loadSprite(src) {
+    const img = new Image();
+    // img.crossOrigin = "anonymous"; // only if truly cross-origin and server sends CORS headers
+
+    const sprite = {
+        img,
+        src,
+        status: "loading",   // "loading" | "ok" | "err"
+        attempts: 0,
+        maxAttempts: 3,
+        nextRetryAt: 0,      // performance.now() timestamp
+    };
+
+    img.addEventListener("load", () => {
+        sprite.status = (img.naturalWidth > 0) ? "ok" : "err";
+    });
+    img.addEventListener("error", () => {
+        sprite.status = "err";
+    });
+
+    // small perf hint
+    img.decoding = "async";
+    img.src = src;
+
+    return sprite;
+}
+
+const bob1Sprite = loadSprite("./assets/bob1.png");
+const bob2Sprite = loadSprite("./assets/bob2.png");
+
+function filledCircle(ctx, p, r, fill, outline = THEME.outline) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = outline;
+    ctx.stroke();
+}
+
+function tryRetrySprite(sprite, now = performance.now()) {
+    if (!sprite) return;
+    if (sprite.status !== "err") return;
+    if (sprite.attempts >= sprite.maxAttempts) return;
+    if (now < sprite.nextRetryAt) return;
+
+    sprite.attempts++;
+    sprite.status = "loading";
+
+    // exponential-ish backoff: 250ms, 500ms, 1000ms...
+    const delay = 250 * Math.pow(2, sprite.attempts - 1);
+    sprite.nextRetryAt = now + delay;
+
+    // cache-bust only on retry
+    sprite.img.src = `${sprite.src}?v=${Date.now()}`;
+}
+
+function imageReady(sprite) {
+    return sprite && sprite.status === "ok" && sprite.img.complete && sprite.img.naturalWidth > 0;
+}
+
+function drawSpriteOrFallback(ctx, sprite, p, r, angleRad, fallbackFill) {
+    if (imageReady(sprite)) {
+        const size = r * 2;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(-angleRad); // add offset here if your sprite is “90° off”
+        ctx.drawImage(sprite.img, -r, -r, size, size);
+
+        ctx.restore();
+        return;
+    }
+
+    // Optional: if it failed, attempt a controlled retry (NOT every frame)
+    if (sprite && sprite.status === "err") {
+        tryRetrySprite(sprite);
+    }
+
+    filledCircle(ctx, p, r, fallbackFill);
+}
+
 const viewport = document.getElementById("viewport");
 
 // resizer for canvas
@@ -85,6 +176,9 @@ const ds_th1 = mod.cwrap("ds_th1", "number", ["number"]);
 const ds_w1  = mod.cwrap("ds_w1",  "number", ["number"]);
 const ds_th2 = mod.cwrap("ds_th2", "number", ["number"]);
 const ds_w2  = mod.cwrap("ds_w2",  "number", ["number"]);
+
+const ds_ke = mod.cwrap("ds_ke", "number", ["number"]);
+const ds_pe = mod.cwrap("ds_pe", "number", ["number"]);
 const ds_energy = mod.cwrap("ds_energy", "number", ["number"]);
 
 // ----- Le big bad source of truth >:) -----
@@ -102,7 +196,7 @@ const params = { ...DEFAULT_PARAMS };
 // Engine
 let h = ds_create(
     params.l1, params.l2, params.m1, params.m2, params.g, params.damping,
-    0.0, 0.0,
+    -0.1, 0.0,
     0.0, 0.0
 );
 
@@ -179,7 +273,7 @@ ui.apply.addEventListener("click", () => {
 
 ui.defaults.addEventListener("click", () => {
     if (dragging !== 0) return;
-    ds_reset(h, 0.0, 0.0);
+    ds_reset(h, -0.1, 0.0);
 
     // reset parameter values
     Object.assign(params, DEFAULT_PARAMS);
@@ -195,7 +289,7 @@ ui.defaults.addEventListener("click", () => {
 });
 
 ui.reset.addEventListener("click", () => {
-    ds_reset(h, 0.0, 0.0);
+    ds_reset(h, -0.1, 0.0);
     resetFiltersAndTiming();
     setStatus("Reset animation.", "ok");
 });
@@ -206,8 +300,9 @@ let prevTh = 0;
 let hasPrev = false;
 let filtOmega = 0;
 
-const ALPHA = 0.20;
-const OMEGA_MAX = 12.0;
+// ====FOR TUNING====
+const ALPHA = 0.18;
+const OMEGA_MAX = 15.0;
 
 function updateFilteredOmega(th, dt) {
     if (!hasPrev) {
@@ -258,8 +353,8 @@ canvas.addEventListener("pointerdown", (e) => {
     const d2 = Math.hypot(lastPointerPos.x - p2.x, lastPointerPos.y - p2.y);
 
     // pad grab radius
-    const GRAB1 = 8 + clamp(6 + 5 * Math.sqrt(params.m1), 6, 40);
-    const GRAB2 = 8 + clamp(6 + 5 * Math.sqrt(params.m2), 6, 40);
+    const GRAB1 = 50 + clamp(6 + 5 * Math.sqrt(params.m1), 6, 40);
+    const GRAB2 = 50 + clamp(6 + 5 * Math.sqrt(params.m2), 6, 40);
 
     if (d2 <= GRAB2) dragging = 2;
     else if (d1 <= GRAB1) dragging = 1;
@@ -291,7 +386,7 @@ canvas.addEventListener("pointerleave", endPointer, { passive: false });
 // Keyboard reset
 addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
-        ds_reset(h, 0.0, 0.0);
+        ds_reset(h, -0.1, 0.0);
         resetFiltersAndTiming();
     }
 });
@@ -302,6 +397,7 @@ function updateReadout() {
     const th1v = ds_th1(h), w1v = ds_w1(h);
     const th2v = ds_th2(h), w2v = ds_w2(h);
     const x1 = ds_x1(), y1 = ds_y1(), x2 = ds_x2(), y2 = ds_y2();
+    const ke = ds_ke(h), pe = ds_pe(h);
     const E = ds_energy(h);
 
     ui.readout.textContent =
@@ -311,11 +407,13 @@ g=${params.g.toFixed(3)}  damping=${params.damping.toFixed(3)}
 th1: ${rad2deg(th1v).toFixed(2)} deg   w1: ${w1v.toFixed(3)} rad/s
 th2: ${rad2deg(th2v).toFixed(2)} deg   w2: ${w2v.toFixed(3)} rad/s
 
-x1: ${x1.toFixed(3)}  y1: ${y1.toFixed(3)}
-x2: ${x2.toFixed(3)}  y2: ${y2.toFixed(3)}
+x1: ${x1.toFixed(3)}  y1: ${-y1.toFixed(3)}
+x2: ${x2.toFixed(3)}  y2: ${-y2.toFixed(3)}
 
-E: ${E.toFixed(4)}
-dragging: ${dragging === 0 ? "none" : (dragging === 1 ? "bob1" : "bob2")}`;
+Total Energy (N): ${E.toFixed(4)}
+Kinetic Energy (N): ${ke.toFixed(4)}
+Potential Energy (N): ${pe.toFixed(4)}
+Currently dragging: ${dragging === 0 ? "none" : (dragging === 1 ? "bob1" : "bob2")}`;
 }
 
 // Animation
@@ -405,24 +503,21 @@ function draw(x1, y1, x2, y2) {
     p2.x = snap(p2.x); p2.y = snap(p2.y);
 
     ctx.lineWidth = 2;
+    ctx.strokeStyle = THEME.rod;
     ctx.beginPath();
     ctx.moveTo(p0.x, p0.y);
     ctx.lineTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
 
-    const circle = (p, r) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.stroke();
-    };
-
     const r1 = clamp(6 + 5 * Math.sqrt(params.m1), 6, 40);
     const r2 = clamp(6 + 5 * Math.sqrt(params.m2), 6, 40);
+    const th1v = ds_th1(h);
+    const th2v = ds_th2(h);
 
-    circle(p0, 6);
-    circle(p1, r1);
-    circle(p2, r2);
+    filledCircle(ctx, p0, 6, THEME.pivot);
+    drawSpriteOrFallback(ctx, bob1Sprite, p1, r1, th1v, THEME.bob1);
+    drawSpriteOrFallback(ctx, bob2Sprite, p2, r2, th2v, THEME.bob2);
 }
 
 requestAnimationFrame(frame);
