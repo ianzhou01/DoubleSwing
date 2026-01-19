@@ -1,37 +1,89 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DoubleSwing</title>
-    <style>
-        body { font-family: system-ui, sans-serif; margin: 0; }
-        canvas { display: block; width: 100vw; height: 100vh; background: white; }
-    </style>
-</head>
-<body>
-<div id="ui">
-    <div class="row">
-        <label>L1 <input id="l1" type="number" step="0.1" min="0.1" value="2.0"></label>
-        <label>L2 <input id="l2" type="number" step="0.1" min="0.1" value="2.0"></label>
-    </div>
-    <div class="row">
-        <label>M1 <input id="m1" type="number" step="0.1" min="0.1" value="1.0"></label>
-        <label>M2 <input id="m2" type="number" step="0.1" min="0.1" value="1.0"></label>
-    </div>
-    <div class="row">
-        <label>Damping <input id="damping" type="number" step="0.01" min="0" value="0.00"></label>
-        <label>Gravity <input id="g" type="number" step="0.01" value="9.80665"></label>
-    </div>
-    <div class="row">
-        <button id="apply">Apply</button>
-        <button id="reset">Reset (R)</button>
-        <button id="defaults">Defaults</button>
-    </div>
 
-    <pre id="readout">loading...</pre>
+    <!-- TODO: swap to a math font for θ/ω. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <header>
+            <div>
+                <div class="title">DoubleSwing</div>
+                <div class="subtitle">WASM demo</div>
+            </div>
+            <div class="subtitle">Drag bob • <span class="kbd">R</span> reset</div>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h3>Parameters</h3>
+                <div class="grid">
+                    <div class="field">
+                        <label for="l1">L1 (m)</label>
+                        <input id="l1" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+                    </div>
+                    <div class="field">
+                        <label for="l2">L2 (m)</label>
+                        <input id="l2" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+                    </div>
+                    <div class="field">
+                        <label for="m1">m1 (kg)</label>
+                        <input id="m1" type="number" step="0.1" min="0.01" max="100" value="1.0" />
+                    </div>
+                    <div class="field">
+                        <label for="m2">m2 (kg)</label>
+                        <input id="m2" type="number" step="0.1" min="0.01" max="100" value="1.0" />
+                    </div>
+                    <div class="field">
+                        <label for="g">g (m/s²)</label>
+                        <input id="g" type="number" step="0.01" min="0" max="50" value="9.80665" />
+                    </div>
+                    <div class="field">
+                        <label for="damping">damping</label>
+                        <input id="damping" type="number" step="0.001" min="0" max="5" value="0.02" />
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 12px;">
+                    <button id="apply" class="primary">Apply</button>
+                    <button id="reset">Reset angles</button>
+                    <button id="defaults">Defaults</button>
+                </div>
+
+                <div class="hint" style="margin-top: 10px;">
+                    Inputs are clamped to sane ranges. If you want “absurd mode,” remove max/min.
+                </div>
+
+                <div id="status" class="status" aria-live="polite"></div>
+            </div>
+
+            <div class="card">
+                <h3>Live data</h3>
+                <pre id="readout">(loading...)</pre>
+            </div>
+        </div>
+    </aside>
+
+    <main class="stage">
+        <header>
+            <div class="title">Simulation</div>
+            <div class="meta">Drag bob1/bob2 • Reset: <span class="kbd">R</span></div>
+        </header>
+        <div class="viewport" id="viewport">
+            <canvas id="c"></canvas>
+        </div>
+    </main>
 </div>
-<canvas id="c"></canvas>
+
 <script type="module" src="./app.js"></script>
 </body>
 </html>
