@@ -135,7 +135,10 @@ void SfmlApp::update(double dt) {
            << "  w2=" << engine.s.w2 << " rad/s\n"
            << "E=";
 
-        if (!dragging1 && !dragging2) ss << engine.energy();
+        if (!dragging1 && !dragging2) {
+            auto [ke, pe] = engine.energy_breakdown();
+            ss << ke + pe;
+        }
         else ss << " (driven)";
         ss << (dragging1 ? "  [dragging P1]" : (dragging2 ? "  [dragging P2]" : ""));
         ss << "\nR: reset";
