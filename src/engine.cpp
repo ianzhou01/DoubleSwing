@@ -177,9 +177,7 @@ void Engine::bob_positions(double& x1, double& y1, double& x2, double& y2) const
     y2 = y1 + p.l2 * std::cos(s.th2);
 }
 
-double Engine::energy() const {
-    // Note: Kinetic + potential (pivot at 0 potential). +y downward means potential uses -cos terms
-    // Assumes point masses at the bobs
+ds::EnergyBreakdown Engine::energy_breakdown() const {
     const double th1 = s.th1, th2 = s.th2;
     const double w1 = s.w1, w2 = s.w2;
 
@@ -190,13 +188,12 @@ double Engine::energy() const {
     const double v1_sq = (l1*w1)*(l1*w1);
     const double v2_sq = v1_sq + (l2*w2)*(l2*w2) + 2.0*l1*l2*w1*w2*std::cos(th1 - th2);
 
-    const double T = 0.5*m1*v1_sq + 0.5*m2*v2_sq;
+    const double ke = 0.5*m1*v1_sq + 0.5*m2*v2_sq;
 
-    // With y down: height is -y, so potential increases when y decreases.
-    // y1 = l1*cos(th1), y2 = y1 + l2*cos(th2)
-    const double U = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
+    // PE up to an additive constant (fine for UI)
+    const double pe = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
 
-    return T + U;
+    return {ke, pe};
 }
 
 } // namespace ds

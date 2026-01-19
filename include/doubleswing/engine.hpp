@@ -14,6 +14,12 @@ namespace ds {
         double th2, w2;
     };
 
+    struct EnergyBreakdown {
+        double ke;
+        double pe;
+        double total() const { return ke + pe; }
+    };
+
     class Engine {
     public:
         Params p;
@@ -23,8 +29,9 @@ namespace ds {
 
         void step(double dt);
 
-        [[nodiscard]] double energy() const;
         void bob_positions(double& x1, double& y1, double& x2, double& y2) const;
+
+        [[nodiscard]] EnergyBreakdown energy_breakdown() const;
 
         // When th1, w1, a1 are externally imposed, integrate only (th2, w2) with moving-pivot dynamics.
         void step_drag_p1(double dt, double th1, double w1, double a1);
