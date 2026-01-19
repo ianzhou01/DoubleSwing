@@ -161,6 +161,12 @@ function readParamsFromUI() {
     };
 }
 
+const statusEl = document.getElementById("status");
+function setStatus(msg, kind = "") {
+    statusEl.textContent = msg;
+    statusEl.className = "status" + (kind ? ` ${kind}` : "");
+}
+
 ui.apply.addEventListener("click", () => {
     if (dragging !== 0) return;
 
@@ -170,12 +176,6 @@ ui.apply.addEventListener("click", () => {
     resetFiltersAndTiming();
     setStatus("Applied parameters.", "ok");
 });
-
-const statusEl = document.getElementById("status");
-function setStatus(msg, kind = "") {
-    statusEl.textContent = msg;
-    statusEl.className = "status" + (kind ? ` ${kind}` : "");
-}
 
 ui.defaults.addEventListener("click", () => {
     if (dragging !== 0) return;
@@ -191,11 +191,13 @@ ui.defaults.addEventListener("click", () => {
 
     resetFiltersAndTiming();
 
+    setStatus("Restored default parameters.", "ok");
 });
 
 ui.reset.addEventListener("click", () => {
     ds_reset(h, 0.0, 0.0);
     resetFiltersAndTiming();
+    setStatus("Reset parameters.", "ok");
 });
 
 // Drag Filter
