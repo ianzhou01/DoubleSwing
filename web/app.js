@@ -62,7 +62,7 @@ function tryRetrySprite(sprite, now = performance.now()) {
     sprite.attempts++;
     sprite.status = "loading";
 
-    // exponential-ish backoff: 250ms, 500ms, 1000ms...
+    // exponential-ish backoff
     const delay = 250 * Math.pow(2, sprite.attempts - 1);
     sprite.nextRetryAt = now + delay;
 
@@ -80,14 +80,13 @@ function drawSpriteOrFallback(ctx, sprite, p, r, angleRad, fallbackFill) {
 
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.rotate(-angleRad); // add offset here if your sprite is “90° off”
+        ctx.rotate(-angleRad);
         ctx.drawImage(sprite.img, -r, -r, size, size);
 
         ctx.restore();
         return;
     }
 
-    // Optional: if it failed, attempt a controlled retry (NOT every frame)
     if (sprite && sprite.status === "err") {
         tryRetrySprite(sprite);
     }
