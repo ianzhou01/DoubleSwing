@@ -4,13 +4,26 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 canvas.style.touchAction = "none";
 
+const viewport = document.getElementById("viewport");
+
 // resizer for canvas
 function resize() {
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(innerWidth * dpr);
-    canvas.height = Math.floor(innerHeight * dpr);
+
+    const rect = viewport.getBoundingClientRect();
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+
+    // draw in CSS pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
+
+function viewW() { return viewport.getBoundingClientRect().width; }
+function viewH() { return viewport.getBoundingClientRect().height; }
+
 addEventListener("resize", resize);
 resize();
 
@@ -34,11 +47,6 @@ function thetaFromMouse(dx, dy) {
 function getCanvasPosFromClient(e) {
     const rect = canvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
-
-// scale based on CURRENT params
-function pxPerM(params) {
-    return Math.min(innerWidth, innerHeight) * 0.4 / (params.l1 + params.l2);
 }
 
 // WASM
@@ -138,20 +146,36 @@ function resetFiltersAndTiming() {
     acc = 0.0;           // prevents burst of steps after UI changes
 }
 
+function clamp(v, lo, hi) {
+    return Math.min(hi, Math.max(lo, v));
+}
+
+function readParamsFromUI() {
+    return {
+        l1: clamp(num(ui.l1), 0.1, 50),
+        l2: clamp(num(ui.l2), 0.1, 50),
+        m1: clamp(num(ui.m1), 0.01, 100),
+        m2: clamp(num(ui.m2), 0.01, 100),
+        g: clamp(num(ui.g), 0.0, 50),
+        damping: clamp(num(ui.damping), 0.0, 5.0),
+    };
+}
+
 ui.apply.addEventListener("click", () => {
     if (dragging !== 0) return;
 
-    params.l1 = num(ui.l1);
-    params.l2 = num(ui.l2);
-    params.m1 = num(ui.m1);
-    params.m2 = num(ui.m2);
-    params.damping = num(ui.damping);
-    params.g = num(ui.g);
-
+    Object.assign(params, readParamsFromUI());
+    setInputsFromParams(params);
     syncEngineParams();
-
     resetFiltersAndTiming();
+    setStatus("Applied parameters.", "ok");
 });
+
+const statusEl = document.getElementById("status");
+function setStatus(msg, kind = "") {
+    statusEl.textContent = msg;
+    statusEl.className = "status" + (kind ? ` ${kind}` : "");
+}
 
 ui.defaults.addEventListener("click", () => {
     if (dragging !== 0) return;
@@ -182,8 +206,6 @@ let filtOmega = 0;
 
 const ALPHA = 0.20;
 const OMEGA_MAX = 12.0;
-const GRAB1 = 15;
-const GRAB2 = 13;
 
 function updateFilteredOmega(th, dt) {
     if (!hasPrev) {
@@ -212,9 +234,16 @@ canvas.addEventListener("pointerdown", (e) => {
     lastPointerPos = getCanvasPosFromClient(e);
 
     // hit test bobs using current params + current positions
-    const ppm = pxPerM(params);
-    const ox = innerWidth * 0.5;
-    const oy = innerHeight * 0.5;
+    const vw = viewW();
+    const vh = viewH();
+    const ox = vw * 0.5;
+    const oy = vh * 0.5;
+
+    const margin = 32; // px padding inside viewport
+    const usable = Math.min(vw, vh) - margin * 2;
+
+    const denom = Math.max(0.1, params.l1 + params.l2); // prevent extreme scaling
+    const ppm = usable * 0.5 / denom;
 
     ds_update_positions(h);
     const x1 = ds_x1(), y1 = ds_y1();
@@ -225,6 +254,10 @@ canvas.addEventListener("pointerdown", (e) => {
 
     const d1 = Math.hypot(lastPointerPos.x - p1.x, lastPointerPos.y - p1.y);
     const d2 = Math.hypot(lastPointerPos.x - p2.x, lastPointerPos.y - p2.y);
+
+    // pad grab radius
+    const GRAB1 = 8 + clamp(6 + 5 * Math.sqrt(params.m1), 6, 40);
+    const GRAB2 = 8 + clamp(6 + 5 * Math.sqrt(params.m2), 6, 40);
 
     if (d2 <= GRAB2) dragging = 2;
     else if (d1 <= GRAB1) dragging = 1;
@@ -300,9 +333,12 @@ function frame(t) {
 
     const mp = lastPointerPos;
 
-    const ppm = pxPerM(params);
-    const ox = innerWidth * 0.5;
-    const oy = innerHeight * 0.5;
+    const ox = viewW() * 0.5;
+    const oy = viewH() * 0.5;
+
+    const margin = 32;
+    const usable = Math.min(viewW(), viewH()) - margin * 2;
+    const ppm = usable * 0.5 / (params.l1 + params.l2);
 
     // needed for bob2 dragging
     let p1px = null;
@@ -350,9 +386,12 @@ function frame(t) {
 function draw(x1, y1, x2, y2) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const ppm = pxPerM(params);
-    const ox = innerWidth * 0.5;
-    const oy = innerHeight * 0.5;
+    const ox = viewW() * 0.5;
+    const oy = viewH() * 0.5;
+
+    const margin = 32;
+    const usable = Math.min(viewW(), viewH()) - margin * 2;
+    const ppm = usable * 0.5 / (params.l1 + params.l2);
 
     const p0 = { x: ox, y: oy };
     const p1 = { x: ox + x1 * ppm, y: oy + y1 * ppm };
@@ -376,9 +415,12 @@ function draw(x1, y1, x2, y2) {
         ctx.stroke();
     };
 
+    const r1 = clamp(6 + 5 * Math.sqrt(params.m1), 6, 40);
+    const r2 = clamp(6 + 5 * Math.sqrt(params.m2), 6, 40);
+
     circle(p0, 6);
-    circle(p1, 10);
-    circle(p2, 9);
+    circle(p1, r1);
+    circle(p2, r2);
 }
 
 requestAnimationFrame(frame);
