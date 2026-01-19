@@ -197,7 +197,7 @@ ui.defaults.addEventListener("click", () => {
 ui.reset.addEventListener("click", () => {
     ds_reset(h, 0.0, 0.0);
     resetFiltersAndTiming();
-    setStatus("Reset parameters.", "ok");
+    setStatus("Reset animation.", "ok");
 });
 
 // Drag Filter
