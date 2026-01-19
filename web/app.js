@@ -1,8 +1,11 @@
+console.log("init: app.js");
+
 import { loadSprite } from "./gfx/sprites.js";
 import { setupCanvasResize } from "./gfx/viewport.js";
 import { initEngine } from "./engine/wasm.js";
 import { makeParams, syncEngineParams } from "./engine/params.js";
 import { getUIElements, getStatusEl, getEnergyBarEls } from "./ui/elements.js";
+import { initThemeToggle } from "./ui/themeToggle.js";
 import { setInputsFromParams, bindUIControls } from "./ui/controls.js";
 import { makeReadoutUpdater } from "./ui/readout.js";
 import { makeEnergyBarUpdater } from "./ui/energyBar.js";
@@ -33,11 +36,12 @@ const engine = await initEngine(params);
 
 // UI
 const ui = getUIElements();
+initThemeToggle({ checkboxId: "lightMode" });
 
 // initialize inputs from params
 setInputsFromParams(ui, params);
 
-// ensure engine params match (safe even though create used them)
+// ensure engine params match
 syncEngineParams(engine, params);
 
 // timing/filters

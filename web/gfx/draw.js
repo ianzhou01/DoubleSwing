@@ -4,7 +4,7 @@ import { THEME } from "../theme.js";
 import { clamp } from "../utils/math.js";
 import { imageReady, tryRetrySprite } from "./sprites.js";
 
-export function filledCircle(ctx, p, r, fill, outline = THEME.outline) {
+export function filledCircle(ctx, p, r, fill, outline = THEME.outline()) {
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
     ctx.fillStyle = fill;
@@ -57,7 +57,7 @@ export function makeDrawer({ ctx, viewW, viewH, params, engine, sprites }) {
         p2.y = snap(p2.y);
 
         ctx.lineWidth = 2;
-        ctx.strokeStyle = THEME.rod;
+        ctx.strokeStyle = THEME.rod();
         ctx.beginPath();
         ctx.moveTo(p0.x, p0.y);
         ctx.lineTo(p1.x, p1.y);
@@ -70,8 +70,8 @@ export function makeDrawer({ ctx, viewW, viewH, params, engine, sprites }) {
         const th1v = engine.ds_th1(engine.h);
         const th2v = engine.ds_th2(engine.h);
 
-        filledCircle(ctx, p0, 6, THEME.pivot);
-        drawSpriteOrFallback(ctx, sprites.bob1, p1, r1, th1v, THEME.bob1);
-        drawSpriteOrFallback(ctx, sprites.bob2, p2, r2, th2v, THEME.bob2);
+        filledCircle(ctx, p0, 6, THEME.pivot());
+        drawSpriteOrFallback(ctx, sprites.bob1, p1, r1, th1v, THEME.bob1());
+        drawSpriteOrFallback(ctx, sprites.bob2, p2, r2, th2v, THEME.bob2());
     };
 }
