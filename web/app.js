@@ -5,6 +5,7 @@ const viewport = document.getElementById("viewport");
 const statusEl = document.getElementById("status");
 const keBar = document.getElementById("keBar");
 const peBar = document.getElementById("peBar");
+const eDivider = document.getElementById("eDivider");
 const ctx = canvas.getContext("2d");
 canvas.style.touchAction = "none";
 
@@ -439,6 +440,7 @@ function updateEnergyBar() {
 
     keBar.style.width = `${(keFrac * 100).toFixed(2)}%`;
     peBar.style.width = `${(peFrac * 100).toFixed(2)}%`;
+    eDivider.style.left = `${(keFrac * 100).toFixed(2)}%`;
 }
 
 function frame(t) {

@@ -188,8 +188,25 @@ pre#readout {
     gap: 10px;
 }
 
+.energyrow{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.energylabel{
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .3px;
+    user-select: none;
+}
+
+.energylabel.ke{ color: rgba(255, 165, 0, 0.95); }
+.energylabel.pe{ color: rgba(135, 206, 235, 0.95); }
+
 .energybar{
-    height: 10px;
+    position: relative;
+    height: 15px;
     width: 300px;
     border-radius: 999px;
     overflow: hidden;
@@ -199,16 +216,28 @@ pre#readout {
     box-shadow: inset 0 0 10px rgba(0,0,0,.35);
 }
 
-.energybar .ke{
-    width: 50%;
-    background: rgba(125, 211, 252, 0.9);
-    box-shadow: 0 0 12px rgba(125, 211, 252, 0.25);
+.energybar .seg{
+    height: 100%;
 }
 
-.energybar .pe{
-    width: 50%;
-    background: rgba(253, 164, 175, 0.9);
-    box-shadow: 0 0 12px rgba(253, 164, 175, 0.25);
+.energybar .seg.ke{
+    background: rgba(255, 165, 0, 0.9);
+    box-shadow: 0 0 10px rgba(253, 164, 175, 0.18);
+}
+
+.energybar .seg.pe{
+    background: rgba(135, 206, 235, 0.9);
+    box-shadow: 0 0 10px rgba(125, 211, 252, 0.18);
+}
+
+.energybar .divider{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: rgba(0,0,0,0.85);
+    transform: translateX(-1px);
+    pointer-events: none;
 }
 
 .stage .meta {
