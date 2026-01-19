@@ -35,7 +35,7 @@ if (EMSCRIPTEN)
             "SHELL:-s ENVIRONMENT=web"
             "SHELL:-s ALLOW_MEMORY_GROWTH=1"
             # export JS funcs
-            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_update_positions','_ds_x1','_ds_y1','_ds_x2','_ds_y2']"
+            "SHELL:-s EXPORTED_FUNCTIONS=['_ds_create','_ds_destroy','_ds_step','_ds_step_drag_p1','_ds_update_positions','_ds_x1','_ds_y1','_ds_x2','_ds_y2','_ds_set_th1','_ds_set_th2','_ds_set_w1','_ds_set_w2','_ds_reset']"
             "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall']"
             "SHELL:-s MALLOC=emmalloc"
     )
@@ -44,41 +44,35 @@ if (EMSCRIPTEN)
         target_link_options(doubleswing_web PRIVATE "SHELL:-O3")
     endif()
 
-    # Skip SFML
-    return()
-endif()
-
-# ================================================================
-# Desktop build (SFML)
-# ================================================================
-
-# -------- SFML (only needed for the SFML frontend target) --------
-FetchContent_Declare(
-        SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.1
-)
-FetchContent_MakeAvailable(SFML)
-
-# -------- SFML app --------
-add_executable(doubleswing_sfml
-        apps/desktop/main.cpp
-        apps/desktop/sfml_app.cpp
-)
-
-target_link_libraries(doubleswing_sfml PRIVATE
-        doubleswing_core
-        sfml-graphics
-        sfml-window
-        sfml-system
-)
-
-if (WIN32)
-    add_custom_command(TARGET doubleswing_sfml POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:sfml-graphics>
-            $<TARGET_FILE:sfml-window>
-            $<TARGET_FILE:sfml-system>
-            $<TARGET_FILE_DIR:doubleswing_sfml>
+else()
+    # -------- SFML (only needed for the SFML frontend target) --------
+    FetchContent_Declare(
+            SFML
+            GIT_REPOSITORY https://github.com/SFML/SFML.git
+            GIT_TAG 2.6.1
     )
+    FetchContent_MakeAvailable(SFML)
+
+    # -------- SFML app --------
+    add_executable(doubleswing_sfml
+            apps/desktop/main.cpp
+            apps/desktop/sfml_app.cpp
+    )
+
+    target_link_libraries(doubleswing_sfml PRIVATE
+            doubleswing_core
+            sfml-graphics
+            sfml-window
+            sfml-system
+    )
+
+    if (WIN32)
+        add_custom_command(TARGET doubleswing_sfml POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:sfml-graphics>
+                $<TARGET_FILE:sfml-window>
+                $<TARGET_FILE:sfml-system>
+                $<TARGET_FILE_DIR:doubleswing_sfml>
+        )
+    endif()
 endif()
