@@ -1,7 +1,6 @@
 # DoubleSwing
 
-**DoubleSwing** is an interactive, physics-accurate double pendulum simulation written in **C++** and compiled to **WebAssembly (WASM)** for real-time browser interaction.  
-It focuses on *correct dynamics*, *numerical stability*, and *high-fidelity user interaction* rather than visual gimmicks.
+**DoubleSwing** is an interactive, physics-accurate double pendulum simulation written in **C++** and compiled to **WebAssembly (WASM)** for real-time browser interaction.
 
 The project supports **desktop (SFML)** and **web (Canvas + WASM)** frontends backed by a shared physics engine.
 
