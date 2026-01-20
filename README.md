@@ -54,7 +54,7 @@ https://github.com/blahnikkai/double-pendulum-simulator
 
 ---
 
-You can drag the system violently without numerical explosions. If it explodes, that’s a bug (kindly make a PR (pls)).
+You can drag the system violently without numerical explosions. If it explodes, that’s a bug (kindly create an issue (pls)).
 
 ---
 
