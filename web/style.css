@@ -82,6 +82,7 @@ body {
     background: rgba(255,255,255,.03);
     padding: 10px;
     margin-bottom: 10px;
+    outline: 1px solid red;
 }
 
 .card h3 {
@@ -92,6 +93,13 @@ body {
     color: var(--muted);
     letter-spacing: .3px;
     text-transform: uppercase;
+}
+
+.card .stack{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
 }
 
 .grid {
@@ -110,7 +118,7 @@ label {
 .field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0;
 }
 
 input[type="number"] {
@@ -158,26 +166,55 @@ button.primary {
 }
 button.primary:hover { background: rgba(102,217,239,.22); }
 
-.status {
+.status{
+    min-height: 0;
+    outline: 1px solid lime;
+    display: grid;
+    grid-template-rows: 0fr;
+
+    margin-top: 0;
+    border: 0;
     font-size: 12px;
-    margin-top: 10px;
-    padding: 10px;
+
     border-radius: 10px;
-    border: 1px solid var(--border);
     background: var(--status-bg);
     color: var(--status-text);
+
+    overflow: hidden;
+
+    opacity: 0;
+    transform: translateY(-4px);
+
+    transition:
+        grid-template-rows 260ms ease,
+        opacity 260ms ease,
+        transform 260ms ease,
+        margin-top 260ms ease;
+}
+
+.status > .status__inner{
+    overflow: hidden;
+    padding: 10px;
     white-space: pre-wrap;
+    min-height: 0;
 }
 
-.status.ok {
-    border-color: var(--status-ok-border);
-    color: var(--status-ok-text);
+.status.status--shown{
+    grid-template-rows: 1fr;
+
+    margin-top: 0;
+    border: 1px solid var(--border);
+
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.status.err {
-    border-color: var(--status-err-border);
-    color: var(--status-err-text);
+.status.status--gone{
+    display: none;
 }
+
+.status.ok { border-color: var(--status-ok-border); color: var(--status-ok-text); }
+.status.err { border-color: var(--status-err-border); color: var(--status-err-text); }
 
 pre#readout {
     margin: 0;
@@ -286,7 +323,7 @@ canvas {
     font-size: 12px;
 }
 
-.row--spaced { margin-top: 10px; }
+.row--spaced { margin-top: 0; }
 .hint--spaced { margin-top: 10px; }
 
 /* Light/Dark mode */

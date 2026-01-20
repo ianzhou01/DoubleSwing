@@ -22,9 +22,8 @@ g=${params.g.toFixed(3)}  damping=${params.damping.toFixed(3)}
 x1: ${x1.toFixed(3)}  y1: ${(-y1).toFixed(3)}
 x2: ${x2.toFixed(3)}  y2: ${(-y2).toFixed(3)}
 
-Total Energy (N): ${E.toFixed(4)}
-Kinetic Energy (N): ${ke.toFixed(4)}
-Potential Energy (N): ${pe.toFixed(4)}
+Total Energy (J): ${E.toFixed(4)}
+KE (J): ${ke.toFixed(4)}  |  PE (J): ${pe.toFixed(4)}
 Currently dragging: ${dragging === 1 ? "Bob 1" : dragging === 2 ? "Bob 2" : "none"}`.trim();
     };
 }

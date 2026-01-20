@@ -26,44 +26,47 @@
         <div class="content">
             <div class="card">
                 <h3>Parameters</h3>
-                <div class="grid">
-                    <div class="field">
-                        <label for="l1">L1 (m)</label>
-                        <input id="l1" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+
+                <div class="stack">
+                    <div class="grid">
+                        <div class="field">
+                            <label for="l1">L1 (m)</label>
+                            <input id="l1" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+                        </div>
+                        <div class="field">
+                            <label for="l2">L2 (m)</label>
+                            <input id="l2" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+                        </div>
+                        <div class="field">
+                            <label for="m1">m1 (kg)</label>
+                            <input id="m1" type="number" step="0.1" min="0.01" max="100" value="1.0" />
+                        </div>
+                        <div class="field">
+                            <label for="m2">m2 (kg)</label>
+                            <input id="m2" type="number" step="0.1" min="0.01" max="100" value="1.0" />
+                        </div>
+                        <div class="field">
+                            <label for="g">g (m/s²)</label>
+                            <input id="g" type="number" step="0.01" min="0" max="50" value="9.80665" />
+                        </div>
+                        <div class="field">
+                            <label for="damping">damping</label>
+                            <input id="damping" type="number" step="0.001" min="0" max="5" value="0.02" />
+                        </div>
                     </div>
-                    <div class="field">
-                        <label for="l2">L2 (m)</label>
-                        <input id="l2" type="number" step="0.1" min="0.1" max="50" value="2.0" />
+
+                    <div class="row">
+                        <button id="apply" class="primary">Apply</button>
+                        <button id="reset">Reset</button>
+                        <button id="defaults">Defaults</button>
                     </div>
-                    <div class="field">
-                        <label for="m1">m1 (kg)</label>
-                        <input id="m1" type="number" step="0.1" min="0.01" max="100" value="1.0" />
-                    </div>
-                    <div class="field">
-                        <label for="m2">m2 (kg)</label>
-                        <input id="m2" type="number" step="0.1" min="0.01" max="100" value="1.0" />
-                    </div>
-                    <div class="field">
-                        <label for="g">g (m/s²)</label>
-                        <input id="g" type="number" step="0.01" min="0" max="50" value="9.80665" />
-                    </div>
-                    <div class="field">
-                        <label for="damping">damping</label>
-                        <input id="damping" type="number" step="0.001" min="0" max="5" value="0.02" />
-                    </div>
+
+    <!--                <div class="hint hint&#45;&#45;spaced">-->
+    <!--                    Inputs are clamped for my sanity.-->
+    <!--                </div>-->
+
+                    <div id="status" class="status" aria-live="polite"></div>
                 </div>
-
-                <div class="row row--spaced">
-                    <button id="apply" class="primary">Apply</button>
-                    <button id="reset">Reset</button>
-                    <button id="defaults">Defaults</button>
-                </div>
-
-<!--                <div class="hint hint&#45;&#45;spaced">-->
-<!--                    Inputs are clamped for my sanity.-->
-<!--                </div>-->
-
-                <div id="status" class="status" aria-live="polite"></div>
             </div>
 
             <div class="card">

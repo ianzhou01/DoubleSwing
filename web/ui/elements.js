@@ -27,7 +27,43 @@ export function getEnergyBarEls() {
     };
 }
 
+let statusTimer = null;
+let clearTimer = null;
+
 export function setStatus(statusEl, msg, kind = "") {
-    statusEl.textContent = msg;
-    statusEl.className = "status" + (kind ? ` ${kind}` : "");
+    statusEl.classList.remove("status--gone");
+
+    // ensure wrapper exists
+    if (!statusEl.firstElementChild || !statusEl.firstElementChild.classList.contains("status__inner")) {
+        statusEl.innerHTML = `<div class="status__inner"></div>`;
+    }
+    const inner = statusEl.querySelector(".status__inner");
+
+    if (statusTimer) clearTimeout(statusTimer);
+    if (clearTimer) clearTimeout(clearTimer);
+
+    // reset classes
+    statusEl.classList.remove("status--shown", "ok", "err");
+    inner.textContent = msg;
+    if (kind) statusEl.classList.add(kind);
+
+    // force transition restart
+    void statusEl.offsetHeight;
+
+    requestAnimationFrame(() => statusEl.classList.add("status--shown"));
+
+    // hide after 5 seconds
+    statusTimer = setTimeout(() => {
+        statusEl.classList.remove("status--shown");
+
+        clearTimer = setTimeout(() => {
+            inner.textContent = "";
+            statusEl.classList.remove("ok", "err");
+
+            statusEl.classList.add("status--gone");
+
+            statusTimer = null;
+            clearTimer = null;
+        }, 300);
+    }, 5000);
 }
