@@ -82,7 +82,6 @@ body {
     background: rgba(255,255,255,.03);
     padding: 10px;
     margin-bottom: 10px;
-    outline: 1px solid red;
 }
 
 .card h3 {
@@ -168,7 +167,6 @@ button.primary:hover { background: rgba(102,217,239,.22); }
 
 .status{
     min-height: 0;
-    outline: 1px solid lime;
     display: grid;
     grid-template-rows: 0fr;
 
