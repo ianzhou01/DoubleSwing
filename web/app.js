@@ -4,7 +4,7 @@ import { loadSprite } from "./gfx/sprites.js";
 import { setupCanvasResize } from "./gfx/viewport.js";
 import { initEngine } from "./engine/wasm.js";
 import { makeParams, syncEngineParams } from "./engine/params.js";
-import { getUIElements, getStatusEl, getEnergyBarEls } from "./ui/elements.js";
+import { getUIElements, getStatusEl, getEnergyBarEls, setStatus } from "./ui/elements.js";
 import { initThemeToggle } from "./ui/themeToggle.js";
 import { setInputsFromParams, bindUIControls } from "./ui/controls.js";
 import { makeReadoutUpdater } from "./ui/readout.js";
@@ -76,6 +76,7 @@ addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
         engine.ds_reset(engine.h, -0.1, 0.0);
         resetFiltersAndTiming(drag);
+        setStatus(statusEl, "Reset animation.", "ok");
     }
 });
 
