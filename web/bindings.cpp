@@ -55,5 +55,5 @@ extern "C" {
 
     double ds_ke(EngineHandle* h) { return h->eng.energy_breakdown().ke; }
     double ds_pe(EngineHandle* h) { return h->eng.energy_breakdown().pe; }
-    double ds_energy(EngineHandle* h) { auto [ke, pe] = h->eng.energy_breakdown(); return ke + pe;  }
+    double ds_energy(EngineHandle* h) { return h->eng.energy_breakdown().total();  }
 }
