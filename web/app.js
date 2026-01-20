@@ -8,7 +8,7 @@ import { getUIElements, getStatusEl, getEnergyBarEls } from "./ui/elements.js";
 import { initThemeToggle } from "./ui/themeToggle.js";
 import { setInputsFromParams, bindUIControls } from "./ui/controls.js";
 import { makeReadoutUpdater } from "./ui/readout.js";
-import { makeEnergyBarUpdater } from "./ui/energyBar.js";
+import { makeEnergyBarUpdater } from "./ui/energybar.js";
 import { createDragController } from "./input/drag.js";
 import { makeDrawer } from "./gfx/draw.js";
 import { thetaFromMouse } from "./utils/math.js";
