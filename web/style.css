@@ -34,8 +34,8 @@ body {
     height: 100%;
     display: grid;
     grid-template-columns: minmax(280px, 360px) 1fr;
-    gap: 14px;
-    padding: 14px;
+    gap: 12px;
+    padding: 12px;
 }
 
 .sidebar, .stage {
@@ -54,7 +54,7 @@ body {
 }
 
 .sidebar header {
-    padding: 14px 14px 10px;
+    padding: 12px 12px 8px;
     border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
@@ -72,7 +72,7 @@ body {
 }
 
 .sidebar .content {
-    padding: 14px;
+    padding: 12px;
     overflow: auto;
 }
 
@@ -80,11 +80,12 @@ body {
     border: 1px solid var(--border);
     border-radius: 12px;
     background: rgba(255,255,255,.03);
-    padding: 12px;
-    margin-bottom: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 .card h3 {
+    max-height: 15px;
     margin: 0 0 10px;
     font-size: 12px;
     font-weight: 600;
@@ -285,7 +286,7 @@ canvas {
     font-size: 12px;
 }
 
-.row--spaced { margin-top: 12px; }
+.row--spaced { margin-top: 10px; }
 .hint--spaced { margin-top: 10px; }
 
 /* Light/Dark mode */
@@ -365,6 +366,11 @@ body.light button.primary:hover{
 
 body.light canvas{
     background: radial-gradient(700px 450px at 35% 30%, rgba(0,0,0,.06) 0%, rgba(0,0,0,0) 60%);
+}
+
+.math{
+    font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif;
+    font-weight: 400;
 }
 
 @media (max-width: 900px) {
