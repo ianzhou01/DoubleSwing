@@ -12,6 +12,7 @@ import { makeEnergyBarUpdater } from "./ui/energybar.js";
 import { createDragController } from "./input/drag.js";
 import { makeDrawer } from "./gfx/draw.js";
 import { thetaFromMouse } from "./utils/math.js";
+import { initInfoModal } from "./ui/infoModal.js";
 
 // DOM
 const canvas = document.getElementById("c");
@@ -52,13 +53,41 @@ const FIXED_DT = 1 / 240;
 const MAX_FRAME = 1 / 15;
 const MAX_STEPS = 8;
 
+
+
 function resetFiltersAndTiming(dragController) {
     dragController.resetFilter();
     acc = 0.0; // prevents burst of steps after UI changes
 }
 
+let isInfoOpen = () => false;
+
 // drag controller
-const drag = createDragController({ canvas, viewW, viewH, params, engine });
+const drag = createDragController({
+    canvas, viewW, viewH, params, engine,
+    shouldBlockDrag: () => isInfoOpen()
+});
+
+function resyncClock() {
+    last = performance.now();
+    acc = 0.0;
+}
+
+const infoModal = initInfoModal({
+    viewportId: "viewport",
+    btnId: "infoBtn",
+    modalId: "infoModal",
+    closeId: "infoClose",
+    onToggle: () => {
+        // forgive UI-induced frame hitch
+        resyncClock();
+        // prevent stuck drag / omega filter weirdness
+        drag?.cancelDrag?.();
+        drag?.resetFilter?.();
+    }
+});
+
+isInfoOpen = () => infoModal.isOpen();
 
 // bind UI buttons
 bindUIControls({
@@ -94,6 +123,7 @@ function frame(t) {
 
     frameDt = Math.min(frameDt, MAX_FRAME);
     acc += frameDt;
+    acc = Math.min(acc, MAX_STEPS * FIXED_DT); // prevent "catch-up bursts" after closing info window
 
     const mp = drag.getLastPointerPos();
     const dragging = drag.getDragging();

@@ -3,7 +3,7 @@ console.log("init: input/drag.js");
 import { clamp, thetaFromMouse, unwrapDelta } from "../utils/math.js";
 import { getCanvasPosFromClient } from "../gfx/viewport.js";
 
-export function createDragController({ canvas, viewW, viewH, params, engine }) {
+export function createDragController({ canvas, viewW, viewH, params, engine, shouldBlockDrag = null }) {
     // Drag Filter
     let dragging = 0; // 0 none, 1 bob1, 2 bob2
     let prevTh = 0;
@@ -33,9 +33,23 @@ export function createDragController({ canvas, viewW, viewH, params, engine }) {
     let activePointerId = null;
     let lastPointerPos = null;
 
+    function blocked(e) {
+        try {
+            if (typeof shouldBlockDrag === "function" && shouldBlockDrag(e)) return true;
+        } catch {}
+        // Also block if the click originated inside info UI (belt + suspenders)
+
+        const t = e?.target;
+        if (t && t.closest) {
+            if (t.closest("#infoBtn") || t.closest("#infoModal")) return true;
+        }
+        return false;
+    }
+
     canvas.addEventListener(
         "pointerdown",
         (e) => {
+            if (blocked(e)) return;
             if (activePointerId !== null) return; // single pointer only
             activePointerId = e.pointerId;
             try {
@@ -107,7 +121,7 @@ export function createDragController({ canvas, viewW, viewH, params, engine }) {
     canvas.addEventListener("pointercancel", endPointer, { passive: false });
     canvas.addEventListener("pointerleave", endPointer, { passive: false });
 
-    // Keyboard reset stays in app.js
+    // Keyboard reset in app.js
     return {
         getDragging: () => dragging,
         getLastPointerPos: () => lastPointerPos,
@@ -115,5 +129,11 @@ export function createDragController({ canvas, viewW, viewH, params, engine }) {
             hasPrev = false;
         },
         updateFilteredOmega,
+        cancelDrag: () => {
+            dragging = 0;
+            activePointerId = null;
+            lastPointerPos = null;
+            hasPrev = false;
+        },
     };
 }
