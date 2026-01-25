@@ -1,0 +1,90 @@
+/* Light/Dark mode toggle */
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    user-select: none;
+}
+
+.toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}
+
+/* Light theme variables */
+body.light {
+    --bg: #f6f1e6;
+    --panel: #fff9ee;
+    --panel2: #f2eadb;
+    --text: #1a2433;
+    --muted: #51627a;
+    --border: rgba(20,30,45,.14);
+    --shadow: 0 18px 45px rgba(30,35,40,.14);
+
+    --accent: #1aa6c6;
+    --danger: #d63b57;
+    --ok: #1e8f55;
+
+    --status-bg: rgba(255,255,255,.7);
+    --status-text: #51627a;
+
+    --status-ok-border: rgba(30,143,85,.35);
+    --status-ok-text: #1e8f55;
+
+    --status-err-border: rgba(214,59,87,.35);
+    --status-err-text: #d63b57;
+
+    --info-glass: rgba(255,248,234,.72);
+    --info-panel: rgba(255,255,255,.78);
+    --info-border: rgba(20,30,45,.16);
+    --info-shadow: 0 18px 55px rgba(30,35,40,.18);
+}
+
+/* Light theme component overrides */
+body.light {
+    background: radial-gradient(1100px 700px at 15% 10%, #fff3d8 0%, var(--bg) 65%);
+}
+
+body.light .sidebar,
+body.light .stage {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+}
+
+body.light input[type="number"] {
+    background: rgba(255,255,255,.85);
+    border-color: rgba(20,30,45,.18);
+    color: var(--text);
+}
+
+body.light input[type="number"]:focus {
+    border-color: rgba(26,166,198,.55);
+    box-shadow: 0 0 0 3px rgba(26,166,198,.18);
+}
+
+body.light button {
+    background: rgba(20,30,45,.04);
+    border-color: rgba(20,30,45,.18);
+}
+
+body.light button:hover { background: rgba(20,30,45,.07); }
+
+body.light button.primary {
+    border-color: rgba(26,166,198,.45);
+    background: rgba(26,166,198,.12);
+}
+
+body.light button.primary:hover { background: rgba(26,166,198,.18); }
+
+body.light canvas {
+    background: radial-gradient(
+            700px 450px at 35% 30%,
+            rgba(0,0,0,.06) 0%,
+            rgba(0,0,0,0) 60%
+    );
+}
+
+body.light .infoBtn { background: rgba(20,30,45,.05); }
+body.light .infoModal__close { background: rgba(20,30,45,.05); }

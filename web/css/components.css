@@ -1,0 +1,181 @@
+/* Cards / Form bits */
+.card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,.03);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    max-height: 15px;
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+
+.card .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.25);
+    color: var(--text);
+    outline: none;
+}
+
+input[type="number"]:focus {
+    border-color: rgba(102,217,239,.55);
+    box-shadow: 0 0 0 3px rgba(102,217,239,.14);
+}
+
+.hint {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.35;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.row--spaced { margin-top: 0; }
+.hint--spaced { margin-top: 10px; }
+
+/* Buttons */
+button {
+    appearance: none;
+    border: 1px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+button:hover { background: rgba(255,255,255,.10); }
+
+button.primary {
+    border-color: rgba(102,217,239,.45);
+    background: rgba(102,217,239,.14);
+}
+
+button.primary:hover { background: rgba(102,217,239,.22); }
+
+/* Status */
+.status {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
+
+    margin-top: 0;
+    border: 0;
+    font-size: 12px;
+
+    border-radius: 10px;
+    background: var(--status-bg);
+    color: var(--status-text);
+
+    overflow: hidden;
+
+    opacity: 0;
+    transform: translateY(-4px);
+
+    transition:
+            grid-template-rows 260ms ease,
+            opacity 260ms ease,
+            transform 260ms ease,
+            margin-top 260ms ease;
+}
+
+.status > .status__inner {
+    overflow: hidden;
+    padding: 10px;
+    white-space: pre-wrap;
+    min-height: 0;
+}
+
+.status.status--shown {
+    grid-template-rows: 1fr;
+
+    margin-top: 0;
+    border: 1px solid var(--border);
+
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.status.status--gone { display: none; }
+
+.status.ok { border-color: var(--status-ok-border); color: var(--status-ok-text); }
+.status.err { border-color: var(--status-err-border); color: var(--status-err-text); }
+
+pre#readout {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.35;
+    white-space: pre-wrap;
+}
+
+/* Utilities */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+.kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 7px;
+    color: var(--muted);
+    background: rgba(0,0,0,.20);
+    font-size: 12px;
+}
+
+.math {
+    font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif;
+    font-weight: 400;
+}

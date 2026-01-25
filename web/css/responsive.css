@@ -1,0 +1,4 @@
+@media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .stage { height: 62vh; }
+}
