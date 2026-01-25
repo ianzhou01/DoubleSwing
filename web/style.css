@@ -365,7 +365,7 @@ body.light .infoBtn{
     position: absolute;
     inset: 0;
     background: var(--info-glass);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px); /* NOTE: this slows down background animation; take out for transparency */
     -webkit-backdrop-filter: blur(10px);
 }
 
