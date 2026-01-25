@@ -103,6 +103,27 @@
         </header>
         <div class="viewport" id="viewport">
             <canvas id="c"></canvas>
+
+            <button id="infoBtn" class="infoBtn" type="button" aria-haspopup="dialog" aria-controls="infoModal" aria-expanded="false">
+                <span class="infoBtn__icon" aria-hidden="true">i</span>
+                <span class="srOnly">More info</span>
+            </button>
+            <div id="infoModal" class="infoModal" role="dialog" aria-modal="false" aria-labelledby="infoTitle" aria-hidden="true">
+                <div class="infoModal__panel">
+                    <div class="infoModal__header">
+                        <div id="infoTitle" class="infoModal__title">More Info</div>
+                        <button id="infoClose" class="infoModal__close" type="button" aria-label="Close">✕</button>
+                    </div>
+                    <div class="infoModal__body">
+                        <p><strong>Placeholder content.</strong></p>
+                        <p>
+                            This panel will eventually contain model notes, equations, controls, numerical method details, and caveats.
+                        </p>
+                        <p style="opacity:.8">(Scroll works. Simulation continues running underneath.)</p>
+                        <div style="height: 800px;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </div>
