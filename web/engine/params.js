@@ -7,6 +7,10 @@ export const DEFAULT_PARAMS = {
     m2: 1.0,
     g: 9.80665,
     damping: 0.02,
+    th1: -0.1,
+    w1: 0.0,
+    th2: 0.0,
+    w2: 0.0
 };
 
 export function makeParams() {
