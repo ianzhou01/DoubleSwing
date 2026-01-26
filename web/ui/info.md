@@ -130,7 +130,7 @@ Rather than using absolute height relative to an arbitrary world origin, we meas
 The potential energy is computed as:
 
 $$
-V = (m_1 + m_2)\, g\, L_1 \left( 1 - \cos \theta_1 \right) + m_2\, g\, L_2 \left( 1 - \cos \theta_2 \right)
+V = (m_1 + m_2)\ g\ L_1 \left( 1 - \cos \theta_1 \right) + m_2\ g\ L_2 \left( 1 - \cos \theta_2 \right)
 $$
 
 #### Interpretation
