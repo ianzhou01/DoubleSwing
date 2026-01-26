@@ -105,8 +105,8 @@ canvas {
     border: 1px solid var(--info-border);
     background: rgba(255,255,255,.06);
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .infoBtn:hover { background: rgba(255,255,255,.10); }
@@ -133,8 +133,8 @@ canvas {
     position: absolute;
     inset: 0;
     background: var(--info-glass);
-    backdrop-filter: blur(10px); /* NOTE: this slows down background animation; take out for transparency */
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px); /* NOTE: this slows down background animation; take out for transparency */
+    -webkit-backdrop-filter: blur(8px);
 }
 
 /* panel sits inside overlay */
@@ -143,7 +143,7 @@ canvas {
     right: 14px;
     bottom: 14px;
     top: 14px;
-    width: min(520px, calc(100% - 28px));
+    width: min(750px, calc(100vw - 48px));
 
     background: var(--info-panel);
     border: 1px solid var(--info-border);
