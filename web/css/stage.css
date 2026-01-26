@@ -143,13 +143,16 @@ canvas {
     right: 14px;
     bottom: 14px;
     top: 14px;
-    width: min(750px, calc(100vw - 48px));
+    width: clamp(320px, 70%, 750px);
+    max-width: calc(100% - 48px);
+    max-height: calc(100% - 48px);
 
     background: var(--info-panel);
     border: 1px solid var(--info-border);
     border-radius: 14px;
     box-shadow: var(--info-shadow);
     overflow: hidden;
+    margin: auto;
 
     display: grid;
     grid-template-rows: auto 1fr;
