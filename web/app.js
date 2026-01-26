@@ -103,7 +103,7 @@ bindUIControls({
 // keyboard reset
 addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
-        engine.ds_reset(engine.h, -0.1, 0.0);
+        engine.ds_reset(engine.h, params.th1, params.w1, params.th2, params.w2);
         resetFiltersAndTiming(drag);
         setStatus(statusEl, "Reset animation.", "ok");
     }
