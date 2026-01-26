@@ -132,7 +132,7 @@ The potential energy is computed as:
 $$
 V =
 (m_1 + m_2)\, g\, L_1 \left( 1 - \cos \theta_1 \right)
-\;+\;
+\ + \
 m_2\, g\, L_2 \left( 1 - \cos \theta_2 \right)
 $$
 
@@ -145,7 +145,7 @@ $$
   which is always $\ge 0$.
 - When $\theta = 0$ (pendulum hanging straight down),  
   $$
-  \cos \theta = 1 \;\Rightarrow\; V = 0
+  \cos \theta = 1 \ \Rightarrow\ V = 0
   $$
 - As the pendulum rises, $1 - \cos \theta$ increases smoothly, producing a monotonic increase in potential energy.
 
@@ -154,7 +154,7 @@ $$
 This corresponds directly to the engine code:
 
 ```cpp
-pe = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
+const double pe = (m1 + m2)*g*l1*(1 - cos(th1)) + m2*g*l2*(1 - cos(th2));
 ```
 ---
 
