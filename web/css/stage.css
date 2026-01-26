@@ -202,4 +202,18 @@ canvas {
     font-size: 13px;
 }
 
-.infoModal__body p { margin: 0 0 10px; }
+.infoModal__body h2 {
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.infoModal__body .equation {
+    margin: 10px 0;
+    text-align: center;
+}
+
+.infoModal__body p,
+.infoModal__body li {
+    font-size: 13px;
+    line-height: 1.6;
+}
