@@ -38,7 +38,7 @@ export async function initEngine(params) {
     // state setters
     const ds_set_th2 = mod.cwrap("ds_set_th2", null, ["number", "number"]);
     const ds_set_w2 = mod.cwrap("ds_set_w2", null, ["number", "number"]);
-    const ds_reset = mod.cwrap("ds_reset", null, ["number", "number", "number"]);
+    const ds_reset = mod.cwrap("ds_reset", null, ["number", "number", "number", "number", "number"]);
 
     // param setters
     const ds_set_l1 = mod.cwrap("ds_set_l1", null, ["number", "number"]);
@@ -65,10 +65,10 @@ export async function initEngine(params) {
         params.m2,
         params.g,
         params.damping,
-        -0.1,
-        0.0,
-        0.0,
-        0.0
+        params.th1,
+        params.w1,
+        params.th2,
+        params.w2
     );
 
     return {
