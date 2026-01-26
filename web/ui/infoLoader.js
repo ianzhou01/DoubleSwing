@@ -25,7 +25,13 @@ export async function loadInfoHTML({ mdPath = null } = {}) {
 
         marked.setOptions({ gfm: true, breaks: false });
 
-        const html = marked.parse(md);
+        let html = marked.parse(md);
+
+        // Eliminate <p> wrapper for KaTeX rendering
+        html = html.replace(
+            /<pre><code class="language-math">([\s\S]*?)<\/code><\/pre>/g,
+            (_, math) => `$$\n${math}\n$$`
+        );
 
         cache.loaded = true;
         cache.html = html;
