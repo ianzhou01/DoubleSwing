@@ -34,9 +34,9 @@ extern "C" {
     void ds_set_w1 (EngineHandle* h, double w1)  { h->eng.s.w1  = w1; }
     void ds_set_w2 (EngineHandle* h, double w2)  { h->eng.s.w2  = w2; }
 
-    void ds_reset(EngineHandle* h, double th1, double th2) {
-        h->eng.s.th1 = th1; h->eng.s.w1 = 0.0;
-        h->eng.s.th2 = th2; h->eng.s.w2 = 0.0;
+    void ds_reset(EngineHandle* h, double th1, double w1, double th2, double w2) {
+        h->eng.s.th1 = th1; h->eng.s.w1 = w1;
+        h->eng.s.th2 = th2; h->eng.s.w2 = w2;
     }
 
     // Param setters
