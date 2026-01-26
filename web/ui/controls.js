@@ -60,7 +60,7 @@ export function bindUIControls({
     });
 
     ui.reset.addEventListener("click", () => {
-        engine.ds_reset(engine.h, -0.1, 0.0);
+        engine.ds_reset(engine.h, DEFAULT_PARAMS.th1, DEFAULT_PARAMS.w1, DEFAULT_PARAMS.th2, DEFAULT_PARAMS.w2);
         resetFiltersAndTiming();
         setStatus(statusEl, "Reset animation.", "ok");
     });
