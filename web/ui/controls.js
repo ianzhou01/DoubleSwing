@@ -48,7 +48,7 @@ export function bindUIControls({
     ui.defaults.addEventListener("click", () => {
         if (getDragging() !== 0) return;
 
-        engine.ds_reset(engine.h, -0.1, 0.0);
+        engine.ds_reset(engine.h, DEFAULT_PARAMS.th1, DEFAULT_PARAMS.w1, DEFAULT_PARAMS.th2, DEFAULT_PARAMS.w2);
 
         Object.assign(params, DEFAULT_PARAMS);
         setInputsFromParams(ui, params);
